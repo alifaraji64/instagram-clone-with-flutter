@@ -218,6 +218,8 @@ class LandingHelpers extends ChangeNotifier {
                       onPressed: () {
                         Provider.of<LandingServices>(context, listen: false)
                             .signInSheet(context);
+                        Provider.of<LandingServices>(context, listen: false)
+                            .avatarSelectOptions(context);
                       },
                     ),
                   ],

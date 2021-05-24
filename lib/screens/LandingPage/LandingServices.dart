@@ -2,15 +2,88 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/screens/HomePage/HomePage.dart';
+import 'package:thesocial/screens/LandingPage/LandingUtils.dart';
+import 'package:thesocial/services/FirebaseOperations.dart';
 
 import '../../constants/Constantcolors.dart';
 import '../../services/Authentication.dart';
 
 class LandingServices extends ChangeNotifier {
   ConstantColors constantColors = ConstantColors();
+
+  Future showUserAvatar(BuildContext context) {
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (context) {
+          return Container(
+              height: MediaQuery.of(context).size.height * 0.4,
+              width: MediaQuery.of(context).size.width,
+              color: constantColors.blueGreyColor,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 140),
+                    child: Divider(
+                      thickness: 4.0,
+                      color: constantColors.whiteColor,
+                    ),
+                  ),
+                  CircleAvatar(
+                    radius: 70.0,
+                    backgroundColor: constantColors.transperant,
+                    backgroundImage: FileImage(
+                      Provider.of<LandingUtils>(context, listen: true)
+                          .getUserAvatar,
+                    ),
+                  ),
+                  Container(
+                    child: Row(
+                      children: [
+                        MaterialButton(
+                          child: Text(
+                            'Reselect',
+                            style: TextStyle(
+                              color: constantColors.whiteColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onPressed: () {
+                            Provider.of<LandingUtils>(context, listen: false)
+                                .pickUserAvatar(context, ImageSource.gallery);
+                          },
+                        ),
+                        MaterialButton(
+                          color: constantColors.blueColor,
+                          child: Text(
+                            'Confirm Image',
+                            style: TextStyle(
+                              color: constantColors.whiteColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onPressed: () {
+                            Provider.of<FirebaseOperations>(context,
+                                    listen: false)
+                                .uploadUserAvatar(context)
+                                .whenComplete(() {
+                              print('popping the context');
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ));
+        });
+  }
 
   Widget passwordLessSignIn(BuildContext context) {
     return SizedBox(
@@ -87,6 +160,22 @@ class LandingServices extends ChangeNotifier {
               CircleAvatar(
                 backgroundColor: constantColors.redColor,
                 radius: 70.0,
+                backgroundImage:
+                    Provider.of<LandingUtils>(context, listen: true)
+                                .userAvatar !=
+                            null
+                        ? FileImage(
+                            Provider.of<LandingUtils>(context, listen: true)
+                                .userAvatar)
+                        : null,
+                child: Provider.of<LandingUtils>(context, listen: true)
+                            .userAvatar !=
+                        null
+                    ? null
+                    : Icon(
+                        FontAwesomeIcons.userCircle,
+                        size: 80,
+                      ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -162,11 +251,32 @@ class LandingServices extends ChangeNotifier {
                             _passwordController.text,
                           )
                           .whenComplete(() => {
-                                Navigator.pushReplacement(
+                                Provider.of<FirebaseOperations>(
+                                  context,
+                                  listen: false,
+                                ).addUserToCollection(context, {
+                                  'userid': Provider.of<Authentication>(
                                     context,
-                                    PageTransition(
-                                        child: HomePage(),
-                                        type: PageTransitionType.leftToRight))
+                                    listen: false,
+                                  ).getUserUid,
+                                  'useremail': _emailController.text,
+                                  'username': _usernameController.text,
+                                  'userimage': Provider.of<LandingUtils>(
+                                    context,
+                                    listen: false,
+                                  ).getUserAvatarUrl
+                                }).whenComplete(() {
+                                  print(Provider.of<LandingUtils>(
+                                    context,
+                                    listen: false,
+                                  ).getUserAvatarUrl);
+                                  Navigator.pushReplacement(
+                                      context,
+                                      PageTransition(
+                                          child: HomePage(),
+                                          type:
+                                              PageTransitionType.leftToRight));
+                                })
                               });
                     } else {
                       showWarning(context, "please fill the email input");
@@ -286,11 +396,62 @@ class LandingServices extends ChangeNotifier {
                 child: Text(
               warning,
               style: TextStyle(
-                color: constantColors.whiteColor,
+                color: constantColors.yellowColor,
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,
               ),
             )),
+          );
+        });
+  }
+
+  Future avatarSelectOptions(BuildContext context) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.1,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                color: constantColors.blueGreyColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15.0),
+                  topRight: Radius.circular(15.0),
+                )),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                MaterialButton(
+                  color: constantColors.blueColor,
+                  child: Text(
+                    'Camera',
+                    style: TextStyle(color: constantColors.whiteColor),
+                  ),
+                  onPressed: () {
+                    Provider.of<LandingUtils>(context, listen: false)
+                        .pickUserAvatar(context, ImageSource.camera)
+                        .whenComplete(() {
+                      Provider.of<LandingServices>(context, listen: false)
+                          .showUserAvatar(context);
+                    });
+                  },
+                ),
+                MaterialButton(
+                  color: constantColors.blueColor,
+                  child: Text(
+                    'Gallery',
+                    style: TextStyle(color: constantColors.whiteColor),
+                  ),
+                  onPressed: () {
+                    Provider.of<LandingUtils>(context, listen: false)
+                        .pickUserAvatar(context, ImageSource.gallery)
+                        .whenComplete(() {
+                      showUserAvatar(context);
+                    });
+                  },
+                )
+              ],
+            ),
           );
         });
   }
