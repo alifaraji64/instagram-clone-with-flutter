@@ -102,7 +102,10 @@ class LandingServices extends ChangeNotifier {
                     .map<Widget>((DocumentSnapshot documentSnapshot) {
               return ListTile(
                 trailing: IconButton(
-                  icon: Icon(FontAwesomeIcons.trashAlt),
+                  icon: Icon(
+                    FontAwesomeIcons.trashAlt,
+                    color: constantColors.redColor,
+                  ),
                   onPressed: () {},
                 ),
                 leading: CircleAvatar(
@@ -114,7 +117,7 @@ class LandingServices extends ChangeNotifier {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: constantColors.greenColor,
-                    fontSize: 12.0,
+                    fontSize: 15.0,
                   ),
                 ),
                 subtitle: Text(
@@ -122,7 +125,7 @@ class LandingServices extends ChangeNotifier {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: constantColors.greenColor,
-                    fontSize: 12.0,
+                    fontSize: 14.0,
                   ),
                 ),
               );

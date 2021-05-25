@@ -1,0 +1,40 @@
+import 'package:custom_navigation_bar/custom_navigation_bar.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:thesocial/constants/Constantcolors.dart';
+import 'package:thesocial/services/FirebaseOperations.dart';
+
+class HomePageHelpers extends ChangeNotifier {
+  ConstantColors constantColors = ConstantColors();
+  Widget bottomNavBar(
+      BuildContext context, int index, PageController pageController) {
+    return CustomNavigationBar(
+      backgroundColor: Colors.grey[900],
+      currentIndex: index,
+      bubbleCurve: Curves.bounceOut,
+      scaleCurve: Curves.ease,
+      selectedColor: constantColors.blueColor,
+      unSelectedColor: constantColors.whiteColor,
+      strokeColor: constantColors.blueColor,
+      scaleFactor: 0.2,
+      iconSize: 32.0,
+      onTap: (val) {
+        index = val;
+        pageController.jumpToPage(val);
+        notifyListeners();
+      },
+      items: [
+        CustomNavigationBarItem(icon: Icon(EvaIcons.home)),
+        CustomNavigationBarItem(icon: Icon(Icons.message_rounded)),
+        CustomNavigationBarItem(
+            icon: CircleAvatar(
+          backgroundImage:
+              NetworkImage(Provider.of<FirebaseOperations>(context).userimage),
+        )),
+      ],
+    );
+  }
+}

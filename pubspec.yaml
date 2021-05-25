@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   cloud_firestore: ^2.2.0
   cupertino_icons: any
+  custom_navigation_bar: ^0.8.1
   eva_icons_flutter: any
   firebase_auth: any
   firebase_core: any
@@ -28,7 +29,7 @@ flutter:
 
   uses-material-design: true
   assets:
-    - assets/images/login.png
+    - assets/images/
   fonts:
     - family: Poppins
       fonts:

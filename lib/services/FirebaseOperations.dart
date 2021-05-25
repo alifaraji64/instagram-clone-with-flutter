@@ -7,11 +7,15 @@ import 'package:thesocial/screens/LandingPage/LandingUtils.dart';
 import 'package:thesocial/services/Authentication.dart';
 
 class FirebaseOperations extends ChangeNotifier {
+  String useremail;
+  String username;
+  String userimage;
   Future uploadUserAvatar(BuildContext context) async {
     final provider = Provider.of<LandingUtils>(context, listen: false);
     UploadTask imageUploadTask;
-    Reference imageReference = FirebaseStorage.instance.ref().child(
-        'userProfileAvatar/${Provider.of<LandingUtils>(context, listen: false).getUserAvatar.path}/${TimeOfDay.now()}');
+    Reference imageReference = FirebaseStorage.instance
+        .ref()
+        .child('userProfileAvatar/${TimeOfDay.now()}');
 
     imageUploadTask = imageReference.putFile(provider.getUserAvatar);
 
@@ -30,5 +34,19 @@ class FirebaseOperations extends ChangeNotifier {
         .collection('allUsers')
         .doc(Provider.of<Authentication>(context, listen: false).getUserUid)
         .set(data);
+  }
+
+  Future fetchUserProfileInfo(BuildContext context) async {
+    await FirebaseFirestore.instance
+        .collection('allUsers')
+        .doc(Provider.of<Authentication>(context, listen: false).getUserUid)
+        .get()
+        .then((doc) {
+      this.useremail = doc.get('useremail');
+      this.username = doc.get('username');
+      this.userimage = doc.get('userimage');
+      print(this.useremail + ' ' + this.username + ' ' + this.userimage);
+      notifyListeners();
+    });
   }
 }
