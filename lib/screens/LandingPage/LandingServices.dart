@@ -421,38 +421,55 @@ class LandingServices extends ChangeNotifier {
                   topLeft: Radius.circular(15.0),
                   topRight: Radius.circular(15.0),
                 )),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                MaterialButton(
-                  color: constantColors.blueColor,
-                  child: Text(
-                    'Camera',
-                    style: TextStyle(color: constantColors.whiteColor),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 140),
+                  child: Divider(
+                    thickness: 4.0,
+                    color: constantColors.whiteColor,
                   ),
-                  onPressed: () {
-                    Provider.of<LandingUtils>(context, listen: false)
-                        .pickUserAvatar(context, ImageSource.camera)
-                        .whenComplete(() {
-                      Provider.of<LandingServices>(context, listen: false)
-                          .showUserAvatar(context);
-                    });
-                  },
                 ),
-                MaterialButton(
-                  color: constantColors.blueColor,
-                  child: Text(
-                    'Gallery',
-                    style: TextStyle(color: constantColors.whiteColor),
-                  ),
-                  onPressed: () {
-                    Provider.of<LandingUtils>(context, listen: false)
-                        .pickUserAvatar(context, ImageSource.gallery)
-                        .whenComplete(() {
-                      showUserAvatar(context);
-                    });
-                  },
-                )
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    MaterialButton(
+                      color: constantColors.blueColor,
+                      child: Text(
+                        'Camera',
+                        style: TextStyle(
+                          color: constantColors.whiteColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        Provider.of<LandingUtils>(context, listen: false)
+                            .pickUserAvatar(context, ImageSource.camera)
+                            .whenComplete(() {
+                          Provider.of<LandingServices>(context, listen: false)
+                              .showUserAvatar(context);
+                        });
+                      },
+                    ),
+                    MaterialButton(
+                      color: constantColors.blueColor,
+                      child: Text(
+                        'Gallery',
+                        style: TextStyle(
+                          color: constantColors.whiteColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        Provider.of<LandingUtils>(context, listen: false)
+                            .pickUserAvatar(context, ImageSource.gallery)
+                            .whenComplete(() {
+                          showUserAvatar(context);
+                        });
+                      },
+                    )
+                  ],
+                ),
               ],
             ),
           );

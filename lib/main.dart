@@ -10,6 +10,10 @@ import 'package:thesocial/services/Authentication.dart';
 import 'package:thesocial/services/FirebaseOperations.dart';
 import 'package:thesocial/screens/HomePage/HomePageHelpers.dart';
 import 'package:thesocial/screens/Profile/ProfileHelpers.dart';
+import 'package:thesocial/screens/Feed/FeedHelpers.dart';
+import 'package:thesocial/screens/Feed/FeedUtils.dart';
+import 'package:thesocial/screens/Feed/FeedServices.dart';
+import 'package:thesocial/services/UploadPost.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +28,10 @@ class MyApp extends StatelessWidget {
     ConstantColors constantColors = ConstantColors();
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => FeedServices()),
+        ChangeNotifierProvider(create: (_) => FeedUtils()),
+        ChangeNotifierProvider(create: (_) => UploadPost()),
+        ChangeNotifierProvider(create: (_) => FeedHelpers()),
         ChangeNotifierProvider(create: (_) => ProfileHelpers()),
         ChangeNotifierProvider(create: (_) => HomePageHelpers()),
         ChangeNotifierProvider(create: (_) => LandingUtils()),

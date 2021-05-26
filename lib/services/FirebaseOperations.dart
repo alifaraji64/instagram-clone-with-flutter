@@ -10,6 +10,9 @@ class FirebaseOperations extends ChangeNotifier {
   String useremail;
   String username;
   String userimage;
+  String get getUserEmail => useremail;
+  String get getUserName => username;
+  String get getUserImage => userimage;
   Future uploadUserAvatar(BuildContext context) async {
     final provider = Provider.of<LandingUtils>(context, listen: false);
     UploadTask imageUploadTask;
@@ -48,5 +51,9 @@ class FirebaseOperations extends ChangeNotifier {
       print(this.useremail + ' ' + this.username + ' ' + this.userimage);
       notifyListeners();
     });
+  }
+
+  Future addPostData(String postId, dynamic data) async {
+    await FirebaseFirestore.instance.collection('posts').doc(postId).set(data);
   }
 }
