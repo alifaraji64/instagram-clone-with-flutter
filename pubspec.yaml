@@ -19,6 +19,7 @@ dependencies:
   font_awesome_flutter: any
   google_sign_in: any
   image_picker: any
+  lottie: ^1.0.1
   page_transition: any
   provider: any
 
@@ -31,6 +32,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/animations/
   fonts:
     - family: Poppins
       fonts:

@@ -204,6 +204,9 @@ class FeedServices extends ChangeNotifier {
                       'userimage': Provider.of<FirebaseOperations>(context,
                               listen: false)
                           .getUserImage,
+                      'postimage':
+                          Provider.of<FeedUtils>(context, listen: false)
+                              .getPostImageUrl,
                     }).whenComplete(() {
                       print('post data added');
                       Navigator.pop(context);

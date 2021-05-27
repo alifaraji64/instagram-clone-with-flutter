@@ -9,13 +9,17 @@ class Authentication extends ChangeNotifier {
   String get getUserUid => userUid;
 
   Future logIntoAccount(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth
-        .signInWithEmailAndPassword(email: email, password: password);
+    try {
+      UserCredential userCredential = await firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
 
-    User user = userCredential.user;
-    userUid = user.uid;
-    print(userUid);
-    notifyListeners();
+      User user = userCredential.user;
+      userUid = user.uid;
+      print(userUid);
+      notifyListeners();
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+    }
   }
 
   Future registerAccount(String email, String password) async {
