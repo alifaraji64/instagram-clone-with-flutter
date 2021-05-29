@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -90,7 +91,7 @@ class LandingServices extends ChangeNotifier {
       height: MediaQuery.of(context).size.height * 0.40,
       width: MediaQuery.of(context).size.width,
       child: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('allUsers').snapshots(),
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -101,14 +102,52 @@ class LandingServices extends ChangeNotifier {
                 children: snapshot.data.docs
                     .map<Widget>((DocumentSnapshot documentSnapshot) {
               return ListTile(
-                trailing: IconButton(
-                  icon: Icon(
-                    FontAwesomeIcons.trashAlt,
-                    color: constantColors.redColor,
+                trailing: Container(
+                  height: 50,
+                  width: 100,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.check,
+                          color: constantColors.blueColor,
+                        ),
+                        onPressed: () {
+                          Provider.of<Authentication>(context, listen: false)
+                              .logIntoAccount(documentSnapshot.get('useremail'),
+                                  documentSnapshot.get('userpassword'))
+                              .whenComplete(() {
+                            Navigator.pushReplacement(
+                                context,
+                                PageTransition(
+                                  child: HomePage(),
+                                  type: PageTransitionType.leftToRight,
+                                ));
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.trashAlt,
+                          color: constantColors.redColor,
+                        ),
+                        onPressed: () {
+                          Provider.of<FirebaseOperations>(
+                            context,
+                            listen: false,
+                          )
+                              .deleteAccount(documentSnapshot.get('userid'))
+                              .whenComplete(() {
+                            print('account deleted');
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  onPressed: () {},
                 ),
                 leading: CircleAvatar(
+                  backgroundColor: constantColors.darkColor,
                   backgroundImage:
                       NetworkImage(documentSnapshot.get('userimage')),
                 ),
@@ -124,7 +163,7 @@ class LandingServices extends ChangeNotifier {
                   documentSnapshot.get('useremail'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: constantColors.greenColor,
+                    color: constantColors.whiteColor,
                     fontSize: 14.0,
                   ),
                 ),
@@ -264,6 +303,7 @@ class LandingServices extends ChangeNotifier {
                                   ).getUserUid,
                                   'useremail': _emailController.text,
                                   'username': _usernameController.text,
+                                  'userpassword': _passwordController.text,
                                   'userimage': Provider.of<LandingUtils>(
                                     context,
                                     listen: false,
@@ -276,9 +316,9 @@ class LandingServices extends ChangeNotifier {
                                   Navigator.pushReplacement(
                                       context,
                                       PageTransition(
-                                          child: HomePage(),
-                                          type:
-                                              PageTransitionType.leftToRight));
+                                        child: HomePage(),
+                                        type: PageTransitionType.leftToRight,
+                                      ));
                                 })
                               });
                     } else {

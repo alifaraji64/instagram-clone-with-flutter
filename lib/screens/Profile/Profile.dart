@@ -65,7 +65,7 @@ class Profile extends StatelessWidget {
                   color: constantColors.blueGreyColor.withOpacity(0.6)),
               child: StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('allUsers')
+                    .collection('users')
                     .doc(Provider.of<Authentication>(context).getUserUid)
                     .snapshots(),
                 builder: (context, snapshot) {
