@@ -98,6 +98,51 @@ class FeedHelpers extends ChangeNotifier {
                                             fontSize: 12,
                                           ),
                                         ),
+                                        //Spacer(),
+                                        SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                3 /
+                                                10),
+                                        Container(
+                                            height: 30,
+                                            width: 70,
+                                            child: StreamBuilder<QuerySnapshot>(
+                                              stream: FirebaseFirestore.instance
+                                                  .collection('posts')
+                                                  .doc(documentSnapshot
+                                                      .get('caption'))
+                                                  .collection('rewards')
+                                                  .snapshots(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  );
+                                                } else {
+                                                  return ListView(
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      children: snapshot
+                                                          .data.docs
+                                                          .map<Widget>(
+                                                              (DocumentSnapshot
+                                                                  documentSnapshot) {
+                                                        return Container(
+                                                          height: 30,
+                                                          width: 40,
+                                                          child: Image.network(
+                                                            documentSnapshot
+                                                                .get('image'),
+                                                          ),
+                                                        );
+                                                      }).toList());
+                                                }
+                                              },
+                                            ))
                                       ],
                                     )
                                   ],
@@ -121,16 +166,53 @@ class FeedHelpers extends ChangeNotifier {
                               Row(
                                 children: [
                                   GestureDetector(
-                                      child: Icon(
-                                    FontAwesomeIcons.heart,
-                                    color: constantColors.redColor,
-                                  )),
+                                    child: Icon(
+                                      FontAwesomeIcons.heart,
+                                      color: constantColors.redColor,
+                                    ),
+                                    onTap: () {
+                                      print('adding like...');
+                                      Provider.of<FirebaseOperations>(
+                                        context,
+                                        listen: false,
+                                      )
+                                          .addLike(
+                                        context,
+                                        documentSnapshot.get('caption'),
+                                        Provider.of<Authentication>(
+                                          context,
+                                          listen: false,
+                                        ).getUserUid,
+                                      )
+                                          .whenComplete(() {
+                                        likeSheet(context, documentSnapshot);
+                                      });
+                                    },
+                                  ),
                                   SizedBox(width: 7),
-                                  Text(
-                                    '0',
-                                    style: TextStyle(
-                                        color: constantColors.whiteColor),
-                                  )
+                                  //number of likes
+                                  StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('posts')
+                                          .doc(documentSnapshot.get('caption'))
+                                          .collection('likes')
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        } else {
+                                          return Text(
+                                            snapshot.data.docs.length
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: constantColors.whiteColor,
+                                            ),
+                                          );
+                                        }
+                                      }),
                                 ],
                               ),
                               SizedBox(width: 15),
@@ -147,26 +229,67 @@ class FeedHelpers extends ChangeNotifier {
                                     },
                                   ),
                                   SizedBox(width: 7),
-                                  Text(
-                                    '0',
-                                    style: TextStyle(
-                                        color: constantColors.whiteColor),
-                                  )
+                                  //number of comments
+                                  StreamBuilder(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('posts')
+                                          .doc(documentSnapshot.get('caption'))
+                                          .collection('comments')
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        } else {
+                                          return Text(
+                                            snapshot.data.docs.length
+                                                .toString(),
+                                            style: TextStyle(
+                                                color:
+                                                    constantColors.whiteColor),
+                                          );
+                                        }
+                                      }),
                                 ],
                               ),
                               SizedBox(width: 15),
                               Row(
                                 children: [
                                   GestureDetector(
-                                      child: Icon(
-                                    FontAwesomeIcons.award,
-                                    color: constantColors.yellowColor,
-                                  )),
+                                    child: Icon(
+                                      FontAwesomeIcons.award,
+                                      color: constantColors.yellowColor,
+                                    ),
+                                    onTap: () {
+                                      rewardSheet(context,
+                                          documentSnapshot.get('caption'));
+                                    },
+                                  ),
                                   SizedBox(width: 7),
-                                  Text('0',
-                                      style: TextStyle(
-                                        color: constantColors.whiteColor,
-                                      ))
+                                  StreamBuilder(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('posts')
+                                          .doc(documentSnapshot.get('caption'))
+                                          .collection('rewards')
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        } else {
+                                          return Text(
+                                            snapshot.data.docs.length
+                                                .toString(),
+                                            style: TextStyle(
+                                                color:
+                                                    constantColors.whiteColor),
+                                          );
+                                        }
+                                      }),
                                 ],
                               ),
                               Spacer(),
@@ -265,12 +388,10 @@ class FeedHelpers extends ChangeNotifier {
         });
   }
 
+//docId is the caption for each post
+  //snapshoto is the snapshot we are getting for each post from feedbody
   Future commentSheet(
-      //docId is the caption for each post
-      //snapshoto is the snapshot we are getting for each post from feedbody
-      BuildContext context,
-      DocumentSnapshot snapshoto,
-      String docId) {
+      BuildContext context, DocumentSnapshot snapshoto, String docId) {
     TextEditingController _commentController = TextEditingController();
     return showModalBottomSheet(
         isScrollControlled: true,
@@ -311,82 +432,89 @@ class FeedHelpers extends ChangeNotifier {
                       } else {
                         return SingleChildScrollView(
                             //shrinkWrap: true,
-                            child: Column(
-                          children: snapshot.data.docs
-                              .map<Widget>((DocumentSnapshot documentSnapshot) {
-                            return Container(
-                              height: MediaQuery.of(context).size.height * 0.15,
-                              width: MediaQuery.of(context).size.width,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      SizedBox(width: 10),
-                                      GestureDetector(
-                                        child: CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                            documentSnapshot.get('userimage'),
+                            child: Padding(
+                          padding: const EdgeInsets.only(bottom: 100.0),
+                          child: Column(
+                            children: snapshot.data.docs.map<Widget>(
+                                (DocumentSnapshot documentSnapshot) {
+                              return Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.15,
+                                width: MediaQuery.of(context).size.width,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(width: 10),
+                                        GestureDetector(
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              documentSnapshot.get('userimage'),
+                                            ),
+                                            radius: 15,
                                           ),
-                                          radius: 15,
                                         ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      Text(
-                                        documentSnapshot.get('username'),
-                                        style: TextStyle(
-                                          color: constantColors.whiteColor,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
+                                        SizedBox(width: 10),
+                                        Text(
+                                          documentSnapshot.get('username'),
+                                          style: TextStyle(
+                                            color: constantColors.whiteColor,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
                                         ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.arrow_upward,
-                                          color: constantColors.blueColor,
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.arrow_upward,
+                                            color: constantColors.blueColor,
+                                            size: 14,
+                                          ),
+                                          onPressed: () {},
                                         ),
-                                        onPressed: () {},
-                                      ),
-                                      Text(
-                                        '1',
-                                        style: TextStyle(
-                                          color: constantColors.whiteColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
+                                        Text(
+                                          '1',
+                                          style: TextStyle(
+                                            color: constantColors.whiteColor,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          FontAwesomeIcons.reply,
-                                          color: constantColors.yellowColor,
+                                        IconButton(
+                                          icon: Icon(
+                                            FontAwesomeIcons.reply,
+                                            color: constantColors.yellowColor,
+                                            size: 16,
+                                          ),
+                                          onPressed: () {},
                                         ),
-                                        onPressed: () {},
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          FontAwesomeIcons.trash,
-                                          color: constantColors.redColor,
+                                        IconButton(
+                                          icon: Icon(
+                                            FontAwesomeIcons.trash,
+                                            color: constantColors.redColor,
+                                            size: 16,
+                                          ),
+                                          onPressed: () {},
                                         ),
-                                        onPressed: () {},
-                                      ),
-                                    ],
-                                  ),
-                                  Row(children: [
-                                    Icon(
-                                      Icons.keyboard_arrow_right,
-                                      color: constantColors.blueColor,
+                                      ],
                                     ),
-                                    Text(documentSnapshot.get('comment'),
-                                        style: TextStyle(
-                                          color: constantColors.whiteColor,
-                                        ))
-                                  ]),
-                                  SizedBox(height: 10)
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                                    Row(children: [
+                                      Icon(
+                                        Icons.keyboard_arrow_right,
+                                        color: constantColors.blueColor,
+                                      ),
+                                      Text(documentSnapshot.get('comment'),
+                                          style: TextStyle(
+                                            color: constantColors.whiteColor,
+                                          ))
+                                    ]),
+                                    SizedBox(height: 10)
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
                         ));
                       }
                     },
@@ -433,10 +561,8 @@ class FeedHelpers extends ChangeNotifier {
                                 color: constantColors.whiteColor),
                             onPressed: () {
                               print('adding comment');
-                              Provider.of<FirebaseOperations>(
-                                context,
-                                listen: false,
-                              )
+                              Provider.of<FirebaseOperations>(context,
+                                      listen: false)
                                   .addComment(
                                 context,
                                 snapshoto.get('caption'),
@@ -461,4 +587,198 @@ class FeedHelpers extends ChangeNotifier {
           );
         });
   }
+
+  Future likeSheet(BuildContext context, DocumentSnapshot snapshot) {
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: constantColors.blueGreyColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 140),
+                  child: Divider(
+                    thickness: 4.0,
+                    color: constantColors.whiteColor,
+                  ),
+                ),
+                Container(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('posts')
+                        .doc(snapshot.get('caption'))
+                        .collection('likes')
+                        .orderBy('time')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else {
+                        return SingleChildScrollView(
+                            //shrinkWrap: true,
+                            child: Column(
+                          children: snapshot.data.docs
+                              .map<Widget>((DocumentSnapshot documentSnapshot) {
+                            return Center(
+                              child: Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.12,
+                                width: MediaQuery.of(context).size.width * 0.95,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(width: 5),
+                                        GestureDetector(
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              documentSnapshot.get('userimage'),
+                                            ),
+                                            radius: 20,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              documentSnapshot.get('username'),
+                                              style: TextStyle(
+                                                color: constantColors.blueColor,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            Text(
+                                              documentSnapshot.get('useremail'),
+                                              style: TextStyle(
+                                                color:
+                                                    constantColors.whiteColor,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Spacer(),
+                                        //conditional follow button
+                                        documentSnapshot.get('useruid') ==
+                                                Provider.of<Authentication>(
+                                                        context,
+                                                        listen: false)
+                                                    .getUserUid
+                                            ? followButton(constantColors)
+                                            : Container(
+                                                width: 0,
+                                                height: 0,
+                                              )
+                                      ],
+                                    ),
+                                    SizedBox(height: 10)
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ));
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  Future rewardSheet(BuildContext context, String postId) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.2,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: constantColors.blueGreyColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 140),
+                  child: Divider(
+                    thickness: 4.0,
+                    color: constantColors.whiteColor,
+                  ),
+                ),
+                StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('rewards')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else {
+                        return ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: snapshot.data.docs
+                              .map<Widget>((DocumentSnapshot documentSnapshot) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: GestureDetector(
+                                child: Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Image.network(
+                                      documentSnapshot.get('image')),
+                                ),
+                                onTap: () {
+                                  print('adding the reward');
+                                  Provider.of<FirebaseOperations>(context,
+                                          listen: false)
+                                      .addReward(
+                                          context,
+                                          documentSnapshot.get('image'),
+                                          postId);
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }
+                    }),
+              ],
+            ),
+          );
+        });
+  }
+}
+
+Widget followButton(ConstantColors constantColors) {
+  return MaterialButton(
+    child: Text(
+      'Follow',
+      style: TextStyle(
+          color: constantColors.whiteColor, fontWeight: FontWeight.bold),
+    ),
+    color: constantColors.blueColor,
+    onPressed: () {},
+  );
 }

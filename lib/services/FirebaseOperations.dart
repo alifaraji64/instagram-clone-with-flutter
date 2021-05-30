@@ -93,4 +93,14 @@ class FirebaseOperations extends ChangeNotifier {
       'time': Timestamp.now()
     });
   }
+
+  Future addReward(
+      BuildContext context, String rewardUrl, String postId) async {
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('rewards')
+        .doc(Provider.of<Authentication>(context, listen: false).getUserUid)
+        .set({'image': rewardUrl});
+  }
 }
