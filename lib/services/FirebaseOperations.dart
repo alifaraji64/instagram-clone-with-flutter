@@ -103,4 +103,16 @@ class FirebaseOperations extends ChangeNotifier {
         .doc(Provider.of<Authentication>(context, listen: false).getUserUid)
         .set({'image': rewardUrl});
   }
+
+  //postId is the caption of post
+  Future deletePost(postId) async {
+    await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
+  }
+
+  Future editPostCaption(String oldCaption, String newCaption) async {
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(oldCaption)
+        .update({'caption': newCaption});
+  }
 }

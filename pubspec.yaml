@@ -22,6 +22,7 @@ dependencies:
   lottie: ^1.0.1
   page_transition: any
   provider: any
+  timeago: ^3.0.2
 
 dev_dependencies:
   flutter_test:

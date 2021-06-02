@@ -184,7 +184,7 @@ class LandingServices extends ChangeNotifier {
         context: context,
         builder: (context) {
           return Container(
-            height: MediaQuery.of(context).size.height * 0.6,
+            height: MediaQuery.of(context).size.height * 0.55,
             decoration: BoxDecoration(
                 color: constantColors.blueGreyColor,
                 borderRadius: BorderRadius.only(

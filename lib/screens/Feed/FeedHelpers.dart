@@ -5,12 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
 import 'package:thesocial/screens/Feed/FeedUtils.dart';
 import 'package:thesocial/screens/Feed/FeedServices.dart';
+import 'package:thesocial/screens/AltProfile/AltProfile.dart';
 import 'package:thesocial/services/Authentication.dart';
 import 'package:thesocial/services/FirebaseOperations.dart';
+import 'package:thesocial/utils/TimeAgo.dart';
+import 'package:thesocial/utils/PostOptions.dart';
 
 class FeedHelpers extends ChangeNotifier {
   ConstantColors constantColors = ConstantColors();
@@ -34,7 +38,10 @@ class FeedHelpers extends ChangeNotifier {
                 topRight: Radius.circular(15),
               )),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+            stream: FirebaseFirestore.instance
+                .collection('posts')
+                .orderBy('time', descending: true)
+                .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
@@ -47,9 +54,11 @@ class FeedHelpers extends ChangeNotifier {
                 return ListView(
                   children: snapshot.data.docs
                       .map<Widget>((DocumentSnapshot documentSnapshot) {
+                    Provider.of<TimeAgo>(context, listen: false)
+                        .showTimeGo(documentSnapshot.get('time'));
                     return Container(
                       margin: EdgeInsets.only(bottom: 20),
-                      height: MediaQuery.of(context).size.height * 0.6,
+                      height: MediaQuery.of(context).size.height * 0.65,
                       width: MediaQuery.of(context).size.width,
                       child: Column(
                         children: [
@@ -62,6 +71,21 @@ class FeedHelpers extends ChangeNotifier {
                                   ),
                                   radius: 20.0,
                                 ),
+                                onTap: () {
+                                  var uidFromDB =
+                                      documentSnapshot.get('useruid');
+                                  if (uidFromDB !=
+                                      Provider.of<Authentication>(context,
+                                              listen: false)
+                                          .getUserUid) {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        PageTransition(
+                                          child: AltProfile(userUid: uidFromDB),
+                                          type: PageTransitionType.leftToRight,
+                                        ));
+                                  }
+                                },
                               ),
                               SizedBox(width: 10),
                               Container(
@@ -91,23 +115,19 @@ class FeedHelpers extends ChangeNotifier {
                                               fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          '12 hours ago',
+                                          '${Provider.of<TimeAgo>(context, listen: false).getImageTimePosted.toString()}',
                                           style: TextStyle(
                                             color: constantColors.lightColor
-                                                .withOpacity(0.8),
+                                                .withOpacity(0.99),
                                             fontSize: 12,
                                           ),
                                         ),
                                         //Spacer(),
-                                        SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                3 /
-                                                10),
+                                        SizedBox(width: 90),
                                         Container(
                                             height: 30,
-                                            width: 70,
+                                            width: 60,
+                                            //displaying the rewards
                                             child: StreamBuilder<QuerySnapshot>(
                                               stream: FirebaseFirestore.instance
                                                   .collection('posts')
@@ -150,6 +170,7 @@ class FeedHelpers extends ChangeNotifier {
                               )
                             ],
                           ),
+                          //displaying the post image
                           Container(
                             height: MediaQuery.of(context).size.height * 0.46,
                             width: MediaQuery.of(context).size.width,
@@ -160,6 +181,7 @@ class FeedHelpers extends ChangeNotifier {
                               ),
                             ),
                           ),
+                          //row of button for like,comment,reward
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -300,7 +322,14 @@ class FeedHelpers extends ChangeNotifier {
                                   ? IconButton(
                                       icon: Icon(EvaIcons.moreVertical),
                                       color: constantColors.whiteColor,
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Provider.of<PostOptions>(context,
+                                                listen: false)
+                                            .showPostOptions(
+                                                context,
+                                                documentSnapshot
+                                                    .get('caption'));
+                                      },
                                     )
                                   : Container(
                                       height: 0,
@@ -455,6 +484,18 @@ class FeedHelpers extends ChangeNotifier {
                                             ),
                                             radius: 15,
                                           ),
+                                          onTap: () {
+                                            Navigator.pushReplacement(
+                                                context,
+                                                PageTransition(
+                                                  child: AltProfile(
+                                                    userUid: documentSnapshot
+                                                        .get('useruid'),
+                                                  ),
+                                                  type: PageTransitionType
+                                                      .leftToRight,
+                                                ));
+                                          },
                                         ),
                                         SizedBox(width: 10),
                                         Text(
@@ -569,7 +610,7 @@ class FeedHelpers extends ChangeNotifier {
                                 _commentController.text,
                               )
                                   .whenComplete(() {
-                                print('comment added to db');
+                                _commentController.text = '';
                                 FocusScopeNode currentFocus =
                                     FocusScope.of(context);
 
@@ -650,6 +691,17 @@ class FeedHelpers extends ChangeNotifier {
                                             ),
                                             radius: 20,
                                           ),
+                                          onTap: () {
+                                            Navigator.pushReplacement(
+                                                context,
+                                                PageTransition(
+                                                  child: AltProfile(
+                                                      userUid: documentSnapshot
+                                                          .get('useruid')),
+                                                  type: PageTransitionType
+                                                      .leftToRight,
+                                                ));
+                                          },
                                         ),
                                         SizedBox(width: 10),
                                         Column(
@@ -675,11 +727,11 @@ class FeedHelpers extends ChangeNotifier {
                                         ),
                                         Spacer(),
                                         //conditional follow button
-                                        documentSnapshot.get('useruid') ==
+                                        documentSnapshot.get('useruid') !=
                                                 Provider.of<Authentication>(
-                                                        context,
-                                                        listen: false)
-                                                    .getUserUid
+                                                  context,
+                                                  listen: false,
+                                                ).getUserUid
                                             ? followButton(constantColors)
                                             : Container(
                                                 width: 0,
