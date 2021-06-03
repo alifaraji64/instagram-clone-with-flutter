@@ -78,11 +78,49 @@ class ProfileHelpers extends ChangeNotifier {
                 ),
                 Row(
                   children: [
-                    profileDetailBox('Followers', '0'),
+                    //getting the number of followers
+                    StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(Provider.of<Authentication>(context,
+                                    listen: false)
+                                .getUserUid)
+                            .collection('followers')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else {
+                            return profileDetailBox('Followers',
+                                snapshot.data.docs.length.toString());
+                          }
+                        }),
                     SizedBox(
                       width: 10,
                     ),
-                    profileDetailBox('followings', '0')
+                    //getting the number of followings
+                    StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(Provider.of<Authentication>(context,
+                                    listen: false)
+                                .getUserUid)
+                            .collection('followings')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else {
+                            return profileDetailBox('Followings',
+                                snapshot.data.docs.length.toString());
+                          }
+                        }),
                   ],
                 ),
                 Padding(

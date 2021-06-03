@@ -3,7 +3,10 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
+import 'package:thesocial/services/Authentication.dart';
+import 'package:thesocial/services/FirebaseOperations.dart';
 
 class AltProfileHelpers extends ChangeNotifier {
   ConstantColors constantColors = ConstantColors();
@@ -76,11 +79,54 @@ class AltProfileHelpers extends ChangeNotifier {
                       ),
                       Row(
                         children: [
-                          profileDetailBox('Followers', '0'),
+                          //getting the number of followers
+                          StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(userUid)
+                                  .collection('followers')
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else {
+                                  return GestureDetector(
+                                    child: profileDetailBox('Followers',
+                                        snapshot.data.docs.length.toString()),
+                                    onTap: () {
+                                      //print('show list of the followers');
+                                    },
+                                  );
+                                }
+                              }),
                           SizedBox(
                             width: 10,
                           ),
-                          profileDetailBox('followings', '0')
+                          //getting the number of followings
+                          StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(userUid)
+                                  .collection('followings')
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else {
+                                  return GestureDetector(
+                                      child: profileDetailBox('Followings',
+                                          snapshot.data.docs.length.toString()),
+                                      onTap: () {
+                                        showFollowingsSheet(context, snapshot);
+                                      });
+                                }
+                              }),
                         ],
                       ),
                       Padding(
@@ -94,19 +140,131 @@ class AltProfileHelpers extends ChangeNotifier {
                 )
               ],
             ),
+            //follow and message buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                MaterialButton(
-                  color: constantColors.blueColor,
-                  child: Text(
-                    'Follow',
-                    style: TextStyle(
-                        color: constantColors.whiteColor,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  onPressed: () {},
-                ),
+                StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(userUid)
+                        .collection('followers')
+                        .doc(Provider.of<Authentication>(context, listen: false)
+                            .getUserUid)
+                        .snapshots(),
+                    builder: (context, snapshot_v2) {
+                      if (snapshot_v2.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else {
+                        //user is not followd
+                        if (!snapshot_v2.hasData || !snapshot_v2.data.exists)
+                          return MaterialButton(
+                            color: constantColors.blueColor,
+                            child: Text(
+                              'Follow',
+                              style: TextStyle(
+                                  color: constantColors.whiteColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () {
+                              Provider.of<FirebaseOperations>(context,
+                                      listen: false)
+                                  .followUser(
+                                userUid,
+                                Provider.of<Authentication>(context,
+                                        listen: false)
+                                    .getUserUid,
+                                {
+                                  'username': snapshot.data.get('username'),
+                                  'useremail': snapshot.data.get('useremail'),
+                                  'userimage': snapshot.data.get('userimage'),
+                                  'userid': snapshot.data.get('userid'),
+                                  'time': Timestamp.now()
+                                },
+                                Provider.of<Authentication>(context,
+                                        listen: false)
+                                    .getUserUid,
+                                userUid,
+                                {
+                                  'username': Provider.of<FirebaseOperations>(
+                                          context,
+                                          listen: false)
+                                      .getUserName,
+                                  'useremail': Provider.of<FirebaseOperations>(
+                                          context,
+                                          listen: false)
+                                      .getUserEmail,
+                                  'userimage': Provider.of<FirebaseOperations>(
+                                          context,
+                                          listen: false)
+                                      .getUserImage,
+                                  'userid': Provider.of<Authentication>(context,
+                                          listen: false)
+                                      .getUserUid,
+                                  'time': Timestamp.now()
+                                },
+                              )
+                                  .whenComplete(() {
+                                return ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: constantColors.yellowColor,
+                                    duration: Duration(seconds: 1),
+                                    content: Text(
+                                      '${snapshot.data.get('username')} has been followed',
+                                      style: TextStyle(
+                                        color: constantColors.darkColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });
+                            },
+                          );
+
+                        //user is followed
+                        else
+                          return MaterialButton(
+                            child: Text('Unfollow',
+                                style: TextStyle(
+                                  color: constantColors.whiteColor,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            color: constantColors.redColor,
+                            onPressed: () {
+                              Provider.of<FirebaseOperations>(context,
+                                      listen: false)
+                                  .unFollowUser(
+                                      Provider.of<Authentication>(context,
+                                              listen: false)
+                                          .getUserUid,
+                                      userUid)
+                                  .whenComplete(() {
+                                return ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: constantColors.redColor,
+                                    duration: Duration(seconds: 1),
+                                    content: Text(
+                                      '${snapshot.data.get('username')} has been UnFollowed',
+                                      style: TextStyle(
+                                        color: constantColors.whiteColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });
+                            },
+                          );
+                      }
+                    }),
                 MaterialButton(
                   color: constantColors.blueColor,
                   child: Text(
@@ -213,5 +371,23 @@ class AltProfileHelpers extends ChangeNotifier {
         ],
       ),
     );
+  }
+
+  Future showFollowingsSheet(BuildContext context, dynamic snapshot) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+              height: MediaQuery.of(context).size.height * 0.4,
+              width: MediaQuery.of(context).size.width,
+              color: constantColors.redColor,
+              child: SingleChildScrollView(
+                child: Column(
+                    children: snapshot.data.docs
+                        .map<Widget>((DocumentSnapshot documentSnapshot) {
+                  return Text(documentSnapshot.get('username'));
+                }).toList()),
+              ));
+        });
   }
 }

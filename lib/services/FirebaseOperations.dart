@@ -115,4 +115,44 @@ class FirebaseOperations extends ChangeNotifier {
         .doc(oldCaption)
         .update({'caption': newCaption});
   }
+
+  Future followUser(
+      String followingUid,
+      String followingDocId,
+      dynamic followingData,
+      String followerUid,
+      String followerDocId,
+      dynamic followerData) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(followingUid)
+        .collection('followers')
+        .doc(followerUid)
+        .set(followerData);
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(followerUid)
+        .collection('followings')
+        .doc(followingUid)
+        .set(followingData);
+
+    print('followed!!!');
+  }
+
+  Future unFollowUser(String unfollowingUid, String beingUnfollowed) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(beingUnfollowed)
+        .collection('followers')
+        .doc(unfollowingUid)
+        .delete();
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(unfollowingUid)
+        .collection('followings')
+        .doc(beingUnfollowed)
+        .delete();
+  }
 }
