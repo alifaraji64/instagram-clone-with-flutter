@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
 import 'package:thesocial/screens/LandingPage/LandingPage.dart';
 import 'package:thesocial/services/Authentication.dart';
+import 'package:thesocial/widgets/GlobalWidgets.dart';
 
 class ProfileHelpers extends ChangeNotifier {
   ConstantColors constantColors = ConstantColors();
@@ -94,8 +95,15 @@ class ProfileHelpers extends ChangeNotifier {
                               child: CircularProgressIndicator(),
                             );
                           } else {
-                            return profileDetailBox('Followers',
-                                snapshot.data.docs.length.toString());
+                            return GestureDetector(
+                              child: profileDetailBox('Followers',
+                                  snapshot.data.docs.length.toString()),
+                              onTap: () {
+                                Provider.of<GlobalWidgets>(context,
+                                        listen: false)
+                                    .showFollowingsSheet(context, snapshot);
+                              },
+                            );
                           }
                         }),
                     SizedBox(
@@ -117,8 +125,15 @@ class ProfileHelpers extends ChangeNotifier {
                               child: CircularProgressIndicator(),
                             );
                           } else {
-                            return profileDetailBox('Followings',
-                                snapshot.data.docs.length.toString());
+                            return GestureDetector(
+                              child: profileDetailBox('Followings',
+                                  snapshot.data.docs.length.toString()),
+                              onTap: () {
+                                Provider.of<GlobalWidgets>(context,
+                                        listen: false)
+                                    .showFollowingsSheet(context, snapshot);
+                              },
+                            );
                           }
                         }),
                   ],
@@ -191,9 +206,13 @@ class ProfileHelpers extends ChangeNotifier {
 
   Widget footerProfile(BuildContext context, dynamic snapshot) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: MediaQuery.of(context).size.height * 0.7,
       width: MediaQuery.of(context).size.width,
-      child: Image.asset('assets/images/empty.png'),
+      child: GridView.count(
+        crossAxisCount: 2,
+        primary: false,
+        children: [],
+      ),
       decoration:
           BoxDecoration(color: constantColors.darkColor.withOpacity(0.4)),
     );

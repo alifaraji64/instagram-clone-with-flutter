@@ -17,6 +17,7 @@ import 'package:thesocial/screens/Feed/FeedServices.dart';
 import 'package:thesocial/services/UploadPost.dart';
 import 'package:thesocial/utils/TimeAgo.dart';
 import 'package:thesocial/utils/PostOptions.dart';
+import 'package:thesocial/widgets/GlobalWidgets.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
     ConstantColors constantColors = ConstantColors();
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => GlobalWidgets()),
         ChangeNotifierProvider(create: (_) => AltProfileHelpers()),
         ChangeNotifierProvider(create: (_) => PostOptions()),
         ChangeNotifierProvider(create: (_) => TimeAgo()),
