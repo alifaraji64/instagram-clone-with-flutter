@@ -2,7 +2,6 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
-import 'package:thesocial/screens/Profile/ProfileHelpers.dart';
 import 'package:thesocial/screens/Feed/FeedHelpers.dart';
 
 class Feed extends StatelessWidget {
@@ -51,6 +50,9 @@ class Feed extends StatelessWidget {
                         fontSize: 20.0))
               ])),
         ),
-        body: Provider.of<FeedHelpers>(context).feedBody(context));
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Provider.of<FeedHelpers>(context).feedBody(context),
+        ));
   }
 }

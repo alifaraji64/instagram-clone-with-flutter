@@ -123,7 +123,7 @@ class FeedHelpers extends ChangeNotifier {
                                           ),
                                         ),
                                         //Spacer(),
-                                        SizedBox(width: 90),
+                                        SizedBox(width: 80),
                                         Container(
                                             height: 30,
                                             width: 60,

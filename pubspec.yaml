@@ -9,9 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^2.2.0
+  cloud_firestore: any
   cupertino_icons: any
-  custom_navigation_bar: ^0.8.1
+  custom_navigation_bar: any
   eva_icons_flutter: any
   firebase_auth: any
   firebase_core: any
@@ -19,10 +19,11 @@ dependencies:
   font_awesome_flutter: any
   google_sign_in: any
   image_picker: any
-  lottie: ^1.0.1
+  lottie: any
   page_transition: any
   provider: any
-  timeago: ^3.0.2
+  timeago: any
+  intl: any
 
 dev_dependencies:
   flutter_test:

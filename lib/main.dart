@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
 import 'package:thesocial/screens/AltProfile/AltProfileHelpers.dart';
+import 'package:thesocial/screens/Chat/ChatHelpers.dart';
 import 'package:thesocial/screens/LandingPage/LandingHelpers.dart';
 import 'package:thesocial/screens/LandingPage/LandingServices.dart';
 import 'package:thesocial/screens/LandingPage/LandingUtils.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
     ConstantColors constantColors = ConstantColors();
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ChatHelpers()),
         ChangeNotifierProvider(create: (_) => GlobalWidgets()),
         ChangeNotifierProvider(create: (_) => AltProfileHelpers()),
         ChangeNotifierProvider(create: (_) => PostOptions()),

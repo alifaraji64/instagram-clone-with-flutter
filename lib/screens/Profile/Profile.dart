@@ -58,7 +58,7 @@ class Profile extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              height: MediaQuery.of(context).size.height * 4 / 3,
+              height: MediaQuery.of(context).size.height * 1.3,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15.0),
@@ -82,7 +82,11 @@ class Profile extends StatelessWidget {
                             .middleProfile(context, snapshot),
                         SizedBox(height: 10),
                         Provider.of<ProfileHelpers>(context, listen: false)
-                            .footerProfile(context, snapshot),
+                            .footerProfile(
+                          context,
+                          Provider.of<Authentication>(context, listen: false)
+                              .getUserUid,
+                        ),
                       ],
                     );
                   }

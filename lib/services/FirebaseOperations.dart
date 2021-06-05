@@ -155,4 +155,27 @@ class FirebaseOperations extends ChangeNotifier {
         .doc(beingUnfollowed)
         .delete();
   }
+
+  Future addChat(
+      String userUid, String myUid, String message, String chatDocUid) async {
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatDocUid)
+        .collection('messages')
+        .add({
+      'message': message,
+      'time': Timestamp.now(),
+      'from': myUid,
+      'to': userUid,
+    });
+  }
+
+  Future deleteChatMessage(String chatDocUid, String docId) async {
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatDocUid)
+        .collection('messages')
+        .doc(docId)
+        .delete();
+  }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
-import 'package:thesocial/screens/Chatroom/Chatroom.dart';
 import 'package:thesocial/services/FirebaseOperations.dart';
 
 class PostOptions extends ChangeNotifier {

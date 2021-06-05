@@ -81,20 +81,20 @@ class GlobalWidgets extends ChangeNotifier {
                     },
                   )
                       .whenComplete(() {
-                    return ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: constantColors.yellowColor,
-                        duration: Duration(seconds: 1),
-                        content: Text(
-                          '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been followed',
-                          style: TextStyle(
-                            color: constantColors.darkColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    );
+                    // return ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(
+                    //     backgroundColor: constantColors.yellowColor,
+                    //     duration: Duration(seconds: 1),
+                    //     content: Text(
+                    //       '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been followed',
+                    //       style: TextStyle(
+                    //         color: constantColors.darkColor,
+                    //         fontSize: 16,
+                    //         fontWeight: FontWeight.bold,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // );
                   });
                 },
               );
@@ -115,20 +115,20 @@ class GlobalWidgets extends ChangeNotifier {
                               .getUserUid,
                           userUid)
                       .whenComplete(() {
-                    return ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: constantColors.redColor,
-                        duration: Duration(seconds: 1),
-                        content: Text(
-                          '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been Unfollowed',
-                          style: TextStyle(
-                            color: constantColors.whiteColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    );
+                    // return ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(
+                    //     backgroundColor: constantColors.redColor,
+                    //     duration: Duration(seconds: 1),
+                    //     content: Text(
+                    //       '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been Unfollowed',
+                    //       style: TextStyle(
+                    //         color: constantColors.whiteColor,
+                    //         fontSize: 16,
+                    //         fontWeight: FontWeight.bold,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // );
                   });
                 },
               );
@@ -192,5 +192,51 @@ class GlobalWidgets extends ChangeNotifier {
                 }).toList()),
               ));
         });
+  }
+
+  Widget postGrid(BuildContext context, String userUid) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      width: MediaQuery.of(context).size.width,
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('posts')
+            .where('useruid', isEqualTo: userUid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 2,
+              ),
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
+                  ),
+                  child: Container(
+                    width: 180,
+                    height: 200,
+                    child: Image.network(
+                      snapshot.data.docs[index].get('postimage'),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                );
+              },
+              itemCount: snapshot.data.docs.length,
+            );
+          }
+        },
+      ),
+      decoration:
+          BoxDecoration(color: constantColors.darkColor.withOpacity(0.4)),
+    );
   }
 }

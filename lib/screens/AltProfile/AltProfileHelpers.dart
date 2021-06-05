@@ -5,8 +5,10 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
+import 'package:thesocial/screens/Chat/Chat.dart';
 import 'package:thesocial/services/Authentication.dart';
 import 'package:thesocial/services/FirebaseOperations.dart';
 import 'package:thesocial/widgets/GlobalWidgets.dart';
@@ -167,7 +169,21 @@ class AltProfileHelpers extends ChangeNotifier {
                         color: constantColors.whiteColor,
                         fontWeight: FontWeight.bold),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        PageTransition(
+                          child: Chat(
+                            profileImage: snapshot.data.get('userimage'),
+                            userUid: userUid,
+                            myUid: Provider.of<Authentication>(
+                              context,
+                              listen: false,
+                            ).getUserUid,
+                          ),
+                          type: PageTransitionType.leftToRight,
+                        ));
+                  },
                 ),
               ],
             )
@@ -187,54 +203,9 @@ class AltProfileHelpers extends ChangeNotifier {
     );
   }
 
-  Widget middleProfile(BuildContext context, dynamic snapshot) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 10,
-              ),
-              Icon(
-                FontAwesomeIcons.userAstronaut,
-                color: constantColors.yellowColor,
-                size: 16,
-              ),
-              Text(
-                'Recently Added',
-                style: TextStyle(
-                    color: constantColors.whiteColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              )
-            ],
-          ),
-        ),
-        SizedBox(height: 10),
-        Container(
-          height: 70,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            color: constantColors.darkColor.withOpacity(0.4),
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget footerProfile(BuildContext context, dynamic snapshot) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.4,
-      width: MediaQuery.of(context).size.width,
-      child: Image.asset('assets/images/empty.png'),
-      decoration:
-          BoxDecoration(color: constantColors.darkColor.withOpacity(0.4)),
-    );
+  Widget footerProfile(BuildContext context, String userUid) {
+    return Provider.of<GlobalWidgets>(context, listen: false)
+        .postGrid(context, userUid);
   }
 
   Widget profileDetailBox(String title, String value) {

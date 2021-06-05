@@ -63,7 +63,7 @@ class AltProfile extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: MediaQuery.of(context).size.height,
+          height: MediaQuery.of(context).size.height * 1.3,
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
               color: constantColors.blueGreyColor,
@@ -88,10 +88,11 @@ class AltProfile extends StatelessWidget {
                         .headerAltProfile(context, snapshot, userUid),
                     Provider.of<AltProfileHelpers>(context, listen: false)
                         .divider(context),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Provider.of<AltProfileHelpers>(context, listen: false)
-                        .middleProfile(context, snapshot),
-                    Provider.of<AltProfileHelpers>(context, listen: false)
-                        .footerProfile(context, snapshot),
+                        .footerProfile(context, this.userUid),
                   ],
                 );
               }

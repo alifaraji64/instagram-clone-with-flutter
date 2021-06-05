@@ -204,18 +204,9 @@ class ProfileHelpers extends ChangeNotifier {
     );
   }
 
-  Widget footerProfile(BuildContext context, dynamic snapshot) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      width: MediaQuery.of(context).size.width,
-      child: GridView.count(
-        crossAxisCount: 2,
-        primary: false,
-        children: [],
-      ),
-      decoration:
-          BoxDecoration(color: constantColors.darkColor.withOpacity(0.4)),
-    );
+  Widget footerProfile(BuildContext context, String userUid) {
+    return Provider.of<GlobalWidgets>(context, listen: false)
+        .postGrid(context, userUid);
   }
 
   Future logoutDialog(BuildContext context) {
