@@ -167,14 +167,16 @@ class AltProfileHelpers extends ChangeNotifier {
                     'Message',
                     style: TextStyle(
                         color: constantColors.whiteColor,
-                        fontWeight: FontWeight.bold),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
                   ),
                   onPressed: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                         context,
                         PageTransition(
                           child: Chat(
                             profileImage: snapshot.data.get('userimage'),
+                            username: snapshot.data.get('username'),
                             userUid: userUid,
                             myUid: Provider.of<Authentication>(
                               context,

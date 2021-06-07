@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
 import 'package:thesocial/screens/Feed/Feed.dart';
-import 'package:thesocial/screens/Chat/Chat.dart';
+import 'package:thesocial/screens/ChatList/ChatList.dart';
 import 'package:thesocial/screens/Profile/Profile.dart';
 import 'package:thesocial/screens/HomePage/HomePageHelpers.dart';
 import 'package:thesocial/services/FirebaseOperations.dart';
@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: constantColors.darkColor,
       body: PageView(
         controller: homepageController,
-        children: [Feed(), Chat(), Profile()],
+        children: [Feed(), ChatList(), Profile()],
         //physics: NeverScrollableScrollPhysics(),
         onPageChanged: (page) {
           setState(() {

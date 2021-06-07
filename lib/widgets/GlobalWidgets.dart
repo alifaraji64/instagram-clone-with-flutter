@@ -81,20 +81,20 @@ class GlobalWidgets extends ChangeNotifier {
                     },
                   )
                       .whenComplete(() {
-                    // return ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(
-                    //     backgroundColor: constantColors.yellowColor,
-                    //     duration: Duration(seconds: 1),
-                    //     content: Text(
-                    //       '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been followed',
-                    //       style: TextStyle(
-                    //         color: constantColors.darkColor,
-                    //         fontSize: 16,
-                    //         fontWeight: FontWeight.bold,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // );
+                    return ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: constantColors.yellowColor,
+                        duration: Duration(seconds: 1),
+                        content: Text(
+                          '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been followed',
+                          style: TextStyle(
+                            color: constantColors.darkColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    );
                   });
                 },
               );
@@ -115,20 +115,20 @@ class GlobalWidgets extends ChangeNotifier {
                               .getUserUid,
                           userUid)
                       .whenComplete(() {
-                    // return ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(
-                    //     backgroundColor: constantColors.redColor,
-                    //     duration: Duration(seconds: 1),
-                    //     content: Text(
-                    //       '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been Unfollowed',
-                    //       style: TextStyle(
-                    //         color: constantColors.whiteColor,
-                    //         fontSize: 16,
-                    //         fontWeight: FontWeight.bold,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // );
+                    return ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: constantColors.redColor,
+                        duration: Duration(seconds: 1),
+                        content: Text(
+                          '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been Unfollowed',
+                          style: TextStyle(
+                            color: constantColors.whiteColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    );
                   });
                 },
               );

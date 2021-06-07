@@ -10,8 +10,8 @@ import 'package:thesocial/services/FirebaseOperations.dart';
 
 class ChatHelpers extends ChangeNotifier {
   ConstantColors constantColors = ConstantColors();
-  Widget chatBody(
-      BuildContext context, String profileImage, String userUid, String myUid) {
+  Widget chatBody(BuildContext context, String profileImage, String username,
+      String userUid, String myUid) {
     TextEditingController _chatController = TextEditingController();
     String chatDocUid;
     if (userUid.compareTo(myUid) == 1) {
@@ -174,7 +174,13 @@ class ChatHelpers extends ChangeNotifier {
                             print(_chatController.text);
                             Provider.of<FirebaseOperations>(context,
                                     listen: false)
-                                .addChat(userUid, myUid, _chatController.text,
+                                .addChat(
+                                    context,
+                                    profileImage,
+                                    username,
+                                    userUid,
+                                    myUid,
+                                    _chatController.text,
                                     chatDocUid)
                                 .whenComplete(() {
                               FocusScopeNode currentFocus =

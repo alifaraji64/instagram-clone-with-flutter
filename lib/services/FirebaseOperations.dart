@@ -10,9 +10,11 @@ class FirebaseOperations extends ChangeNotifier {
   String useremail;
   String username;
   String userimage;
+  List<String> listOfUserIds = [];
   String get getUserEmail => useremail;
   String get getUserName => username;
   String get getUserImage => userimage;
+  List<String> get getListOfUserIds => listOfUserIds;
 
   Future uploadUserAvatar(BuildContext context) async {
     final provider = Provider.of<LandingUtils>(context, listen: false);
@@ -156,7 +158,16 @@ class FirebaseOperations extends ChangeNotifier {
         .delete();
   }
 
-  Future addChat(
+  Future deleteChatMessage(String chatDocUid, String docId) async {
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatDocUid)
+        .collection('messages')
+        .doc(docId)
+        .delete();
+  }
+
+  Future addChat(BuildContext context, String profileImage, String username,
       String userUid, String myUid, String message, String chatDocUid) async {
     await FirebaseFirestore.instance
         .collection('chats')
@@ -166,16 +177,60 @@ class FirebaseOperations extends ChangeNotifier {
       'message': message,
       'time': Timestamp.now(),
       'from': myUid,
-      'to': userUid,
+      'to': userUid
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(myUid)
+        .collection('chats')
+        .doc(userUid)
+        .set({
+      'username': username,
+      'userimage': profileImage,
+      'userid': userUid,
+      'chatdocuid': chatDocUid
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userUid)
+        .collection('chats')
+        .doc(myUid)
+        .set({
+      'username':
+          Provider.of<FirebaseOperations>(context, listen: false).getUserName,
+      'userimage':
+          Provider.of<FirebaseOperations>(context, listen: false).getUserImage,
+      'userid': myUid,
+      'chatdocuid': chatDocUid
     });
   }
 
-  Future deleteChatMessage(String chatDocUid, String docId) async {
+  Future deleteChatList(String chatDocUid, String myUid, String userUid) async {
     await FirebaseFirestore.instance
         .collection('chats')
         .doc(chatDocUid)
         .collection('messages')
-        .doc(docId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((QueryDocumentSnapshot documentSnapshot) {
+        documentSnapshot.reference.delete();
+      });
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(myUid)
+        .collection('chats')
+        .doc(userUid)
+        .delete();
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userUid)
+        .collection('chats')
+        .doc(myUid)
         .delete();
   }
 }
