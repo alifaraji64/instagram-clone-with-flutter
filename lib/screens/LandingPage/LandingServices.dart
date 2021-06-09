@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,74 +15,84 @@ import '../../services/Authentication.dart';
 class LandingServices extends ChangeNotifier {
   ConstantColors constantColors = ConstantColors();
 
-  Future showUserAvatar(BuildContext context) {
-    return showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (context) {
-          return Container(
-              height: MediaQuery.of(context).size.height * 0.4,
-              width: MediaQuery.of(context).size.width,
-              color: constantColors.blueGreyColor,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 140),
-                    child: Divider(
-                      thickness: 4.0,
-                      color: constantColors.whiteColor,
+  dynamic showUserAvatar(BuildContext context) {
+    //we are going to show this bottomsheet if user avatar exists
+    if (Provider.of<LandingUtils>(context, listen: false).getUserAvatar !=
+        null) {
+      return showModalBottomSheet(
+          isScrollControlled: true,
+          context: context,
+          builder: (context) {
+            return Container(
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width,
+                color: constantColors.blueGreyColor,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 140),
+                      child: Divider(
+                        thickness: 4.0,
+                        color: constantColors.whiteColor,
+                      ),
                     ),
-                  ),
-                  CircleAvatar(
-                    radius: 70.0,
-                    backgroundColor: constantColors.transperant,
-                    backgroundImage: FileImage(
-                      Provider.of<LandingUtils>(context, listen: true)
-                          .getUserAvatar,
+                    CircleAvatar(
+                      radius: 70.0,
+                      backgroundColor: constantColors.transperant,
+                      backgroundImage: Provider.of<LandingUtils>(context,
+                                      listen: true)
+                                  .userAvatar !=
+                              null
+                          ? FileImage(
+                              Provider.of<LandingUtils>(context, listen: true)
+                                  .userAvatar)
+                          : null,
                     ),
-                  ),
-                  Container(
-                    child: Row(
-                      children: [
-                        MaterialButton(
-                          child: Text(
-                            'Reselect',
-                            style: TextStyle(
-                              color: constantColors.whiteColor,
-                              fontWeight: FontWeight.bold,
+                    Container(
+                      child: Row(
+                        children: [
+                          MaterialButton(
+                            child: Text(
+                              'Reselect',
+                              style: TextStyle(
+                                color: constantColors.whiteColor,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
+                            onPressed: () {
+                              Provider.of<LandingUtils>(context, listen: false)
+                                  .userAvatar = null;
+                              Provider.of<LandingUtils>(context, listen: false)
+                                  .pickUserAvatar(context, ImageSource.gallery);
+                            },
                           ),
-                          onPressed: () {
-                            Provider.of<LandingUtils>(context, listen: false)
-                                .pickUserAvatar(context, ImageSource.gallery);
-                          },
-                        ),
-                        MaterialButton(
-                          color: constantColors.blueColor,
-                          child: Text(
-                            'Confirm Image',
-                            style: TextStyle(
-                              color: constantColors.whiteColor,
-                              fontWeight: FontWeight.bold,
+                          MaterialButton(
+                            color: constantColors.blueColor,
+                            child: Text(
+                              'Confirm Image',
+                              style: TextStyle(
+                                color: constantColors.whiteColor,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
+                            onPressed: () {
+                              Provider.of<FirebaseOperations>(context,
+                                      listen: false)
+                                  .uploadUserAvatar(context)
+                                  .whenComplete(() {
+                                print('popping the context');
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              });
+                            },
                           ),
-                          onPressed: () {
-                            Provider.of<FirebaseOperations>(context,
-                                    listen: false)
-                                .uploadUserAvatar(context)
-                                .whenComplete(() {
-                              print('popping the context');
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ));
-        });
+                        ],
+                      ),
+                    )
+                  ],
+                ));
+          });
+    }
   }
 
   Widget passwordLessSignIn(BuildContext context) {
@@ -118,6 +127,9 @@ class LandingServices extends ChangeNotifier {
                               .logIntoAccount(documentSnapshot.get('useremail'),
                                   documentSnapshot.get('userpassword'))
                               .whenComplete(() {
+                            Provider.of<FirebaseOperations>(context,
+                                    listen: false)
+                                .fetchUserProfileInfo(context);
                             Navigator.pushReplacement(
                                 context,
                                 PageTransition(
@@ -179,12 +191,33 @@ class LandingServices extends ChangeNotifier {
     TextEditingController _emailController = TextEditingController();
     TextEditingController _usernameController = TextEditingController();
     TextEditingController _passwordController = TextEditingController();
+    GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
+    GlobalKey<FormState> _usernameKey = GlobalKey<FormState>();
+    GlobalKey<FormState> _passwordKey = GlobalKey<FormState>();
+    String _emailValidator(value) {
+      if (value.isEmpty) return 'please fill the email';
+      return null;
+    }
+
+    String _usernameValidator(value) {
+      if (value.isEmpty) return 'please fill the username';
+      return null;
+    }
+
+    String _passwordValidator(value) {
+      if (value.isEmpty)
+        return 'please fill the email';
+      else if (value.toString().length < 6)
+        return 'make sure password has minimum 6 characters';
+      return null;
+    }
+
     return showModalBottomSheet(
         isScrollControlled: true,
         context: context,
         builder: (context) {
           return Container(
-            height: MediaQuery.of(context).size.height * 0.55,
+            height: MediaQuery.of(context).size.height * 0.6,
             decoration: BoxDecoration(
                 color: constantColors.blueGreyColor,
                 borderRadius: BorderRadius.only(
@@ -221,58 +254,70 @@ class LandingServices extends ChangeNotifier {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Email ...',
-                    hintStyle: TextStyle(
+                child: Form(
+                  key: _emailKey,
+                  child: TextFormField(
+                    validator: _emailValidator,
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter Email ...',
+                      hintStyle: TextStyle(
+                        color: constantColors.whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    style: TextStyle(
                       color: constantColors.whiteColor,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                     ),
-                  ),
-                  style: TextStyle(
-                    color: constantColors.whiteColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Username ...',
-                    hintStyle: TextStyle(
+                child: Form(
+                  key: _usernameKey,
+                  child: TextFormField(
+                    validator: _usernameValidator,
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter Username ...',
+                      hintStyle: TextStyle(
+                        color: constantColors.whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    style: TextStyle(
                       color: constantColors.whiteColor,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                     ),
-                  ),
-                  style: TextStyle(
-                    color: constantColors.whiteColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: TextField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Password ...',
-                    hintStyle: TextStyle(
+                child: Form(
+                  key: _passwordKey,
+                  child: TextFormField(
+                    validator: _passwordValidator,
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter Password ...',
+                      hintStyle: TextStyle(
+                        color: constantColors.whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    style: TextStyle(
                       color: constantColors.whiteColor,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                     ),
-                  ),
-                  style: TextStyle(
-                    color: constantColors.whiteColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
                   ),
                 ),
               ),
@@ -285,44 +330,52 @@ class LandingServices extends ChangeNotifier {
                     FontAwesomeIcons.check,
                     color: constantColors.whiteColor,
                   ),
-                  onPressed: () {
-                    if (_emailController.text.isNotEmpty) {
-                      Provider.of<Authentication>(context, listen: false)
-                          .registerAccount(
-                            _emailController.text,
-                            _passwordController.text,
-                          )
-                          .whenComplete(() => {
-                                Provider.of<FirebaseOperations>(
-                                  context,
-                                  listen: false,
-                                ).addUserToCollection(context, {
-                                  'userid': Provider.of<Authentication>(
-                                    context,
-                                    listen: false,
-                                  ).getUserUid,
-                                  'useremail': _emailController.text,
-                                  'username': _usernameController.text,
-                                  'userpassword': _passwordController.text,
-                                  'userimage': Provider.of<LandingUtils>(
-                                    context,
-                                    listen: false,
-                                  ).getUserAvatarUrl
-                                }).whenComplete(() {
-                                  print(Provider.of<LandingUtils>(
-                                    context,
-                                    listen: false,
-                                  ).getUserAvatarUrl);
-                                  Navigator.pushReplacement(
-                                      context,
-                                      PageTransition(
-                                        child: HomePage(),
-                                        type: PageTransitionType.leftToRight,
-                                      ));
-                                })
-                              });
-                    } else {
-                      showWarning(context, "please fill the email input");
+                  onPressed: () async {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+                    currentFocus.unfocus();
+                    if (_emailKey.currentState.validate() &&
+                        _usernameKey.currentState.validate() &&
+                        _passwordKey.currentState.validate()) {
+                      try {
+                        var result = await Provider.of<Authentication>(context,
+                                listen: false)
+                            .registerAccount(_emailController.text,
+                                _passwordController.text);
+                        if (!result) {
+                          showWarning(
+                              context,
+                              Provider.of<Authentication>(context,
+                                      listen: false)
+                                  .errorMsg);
+                          return;
+                        } else {
+                          await Provider.of<FirebaseOperations>(
+                            context,
+                            listen: false,
+                          ).addUserToCollection(context, {
+                            'userid': Provider.of<Authentication>(
+                              context,
+                              listen: false,
+                            ).getUserUid,
+                            'useremail': _emailController.text,
+                            'username': _usernameController.text,
+                            'userpassword': _passwordController.text,
+                            'userimage': Provider.of<LandingUtils>(
+                              context,
+                              listen: false,
+                            ).getUserAvatarUrl
+                          });
+                          Navigator.pushReplacement(
+                              context,
+                              PageTransition(
+                                child: HomePage(),
+                                type: PageTransitionType.leftToRight,
+                              ));
+                        }
+                      } catch (e) {
+                        print('hello from sign up error');
+                        print(e);
+                      }
                     }
                   })
             ]),
@@ -333,12 +386,30 @@ class LandingServices extends ChangeNotifier {
   Future loginSheet(BuildContext context) {
     TextEditingController _emailController = TextEditingController();
     TextEditingController _passwordController = TextEditingController();
+    GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
+    GlobalKey<FormState> _passwordKey = GlobalKey<FormState>();
+    String _emailValidator(value) {
+      if (value.isEmpty) {
+        return 'please fill the email';
+      }
+      return null;
+    }
+
+    String _passwordValidator(value) {
+      if (value.isEmpty) {
+        return 'please fill the password';
+      } else if (value.toString().length < 6) {
+        return 'make sure password contains at least 6 char';
+      }
+      return null;
+    }
+
     return showModalBottomSheet(
         isScrollControlled: true,
         context: context,
         builder: (context) {
           return Container(
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: MediaQuery.of(context).size.height * 0.35,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
                 color: constantColors.blueGreyColor,
@@ -356,39 +427,47 @@ class LandingServices extends ChangeNotifier {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Email ...',
-                    hintStyle: TextStyle(
+                child: Form(
+                  key: _emailKey,
+                  child: TextFormField(
+                    controller: _emailController,
+                    validator: _emailValidator,
+                    decoration: InputDecoration(
+                      hintText: 'Enter Email ...',
+                      hintStyle: TextStyle(
+                        color: constantColors.whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    style: TextStyle(
                       color: constantColors.whiteColor,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                     ),
-                  ),
-                  style: TextStyle(
-                    color: constantColors.whiteColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: TextField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Password ...',
-                    hintStyle: TextStyle(
+                child: Form(
+                  key: _passwordKey,
+                  child: TextFormField(
+                    validator: _passwordValidator,
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter Password ...',
+                      hintStyle: TextStyle(
+                        color: constantColors.whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    style: TextStyle(
                       color: constantColors.whiteColor,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                     ),
-                  ),
-                  style: TextStyle(
-                    color: constantColors.whiteColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
                   ),
                 ),
               ),
@@ -402,21 +481,37 @@ class LandingServices extends ChangeNotifier {
                     color: constantColors.whiteColor,
                   ),
                   onPressed: () {
-                    if (_emailController.text.isNotEmpty) {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+                    currentFocus.unfocus();
+                    if (_emailKey.currentState.validate() &&
+                        _passwordKey.currentState.validate()) {
                       Provider.of<Authentication>(context, listen: false)
                           .logIntoAccount(
-                            _emailController.text,
-                            _passwordController.text,
-                          )
-                          .whenComplete(() => {
-                                Navigator.pushReplacement(
-                                    context,
-                                    PageTransition(
-                                        child: HomePage(),
-                                        type: PageTransitionType.leftToRight))
-                              });
-                    } else {
-                      showWarning(context, "please fill the email input");
+                        _emailController.text,
+                        _passwordController.text,
+                      )
+                          .then((result) {
+                        print(result);
+                        if (!result) {
+                          showWarning(
+                              context,
+                              Provider.of<Authentication>(context,
+                                      listen: false)
+                                  .errorMsg);
+                          return;
+                        }
+                        Navigator.pushReplacement(
+                            context,
+                            PageTransition(
+                              child: HomePage(),
+                              type: PageTransitionType.leftToRight,
+                            ));
+                      }).catchError((e) {
+                        showWarning(
+                            context,
+                            Provider.of<Authentication>(context, listen: false)
+                                .errorMsg);
+                      });
                     }
                   })
             ]),
@@ -451,6 +546,7 @@ class LandingServices extends ChangeNotifier {
   Future avatarSelectOptions(BuildContext context) {
     return showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
           return Container(
             height: MediaQuery.of(context).size.height * 0.1,
@@ -486,6 +582,11 @@ class LandingServices extends ChangeNotifier {
                         Provider.of<LandingUtils>(context, listen: false)
                             .pickUserAvatar(context, ImageSource.camera)
                             .whenComplete(() {
+                          if (Provider.of<LandingUtils>(context, listen: false)
+                                  .getUserAvatar ==
+                              null) {
+                            return;
+                          }
                           Provider.of<LandingServices>(context, listen: false)
                               .showUserAvatar(context);
                         });
@@ -504,6 +605,11 @@ class LandingServices extends ChangeNotifier {
                         Provider.of<LandingUtils>(context, listen: false)
                             .pickUserAvatar(context, ImageSource.gallery)
                             .whenComplete(() {
+                          if (Provider.of<LandingUtils>(context, listen: false)
+                                  .getUserAvatar ==
+                              null) {
+                            return;
+                          }
                           showUserAvatar(context);
                         });
                       },

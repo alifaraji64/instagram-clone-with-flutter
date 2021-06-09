@@ -5,7 +5,6 @@ import 'package:thesocial/screens/Feed/Feed.dart';
 import 'package:thesocial/screens/ChatList/ChatList.dart';
 import 'package:thesocial/screens/Profile/Profile.dart';
 import 'package:thesocial/screens/HomePage/HomePageHelpers.dart';
-import 'package:thesocial/services/FirebaseOperations.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,13 +12,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<FirebaseOperations>(context, listen: false)
-        .fetchUserProfileInfo(context);
-  }
-
   ConstantColors constantColors = ConstantColors();
   final PageController homepageController = PageController();
   int pageIndex = 0;

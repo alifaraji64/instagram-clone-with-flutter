@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
+import 'package:thesocial/screens/LandingPage/LandingUtils.dart';
 import 'package:thesocial/services/FirebaseOperations.dart';
 
 class HomePageHelpers extends ChangeNotifier {
@@ -30,8 +31,10 @@ class HomePageHelpers extends ChangeNotifier {
         CustomNavigationBarItem(icon: Icon(Icons.message_rounded)),
         CustomNavigationBarItem(
             icon: CircleAvatar(
-          backgroundImage:
-              NetworkImage(Provider.of<FirebaseOperations>(context).userimage),
+          backgroundImage: NetworkImage(Provider.of<LandingUtils>(
+            context,
+            listen: false,
+          ).getUserAvatarUrl),
         )),
       ],
     );

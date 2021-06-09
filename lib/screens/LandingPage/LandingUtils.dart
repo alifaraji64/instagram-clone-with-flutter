@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:thesocial/services/FirebaseOperations.dart';
 
 class LandingUtils extends ChangeNotifier {
   final picker = ImagePicker();
@@ -14,7 +16,7 @@ class LandingUtils extends ChangeNotifier {
     pickedUserAvatar == null
         ? print('select image')
         : userAvatar = File(pickedUserAvatar.path);
-    print('this is newly selected user avatar' + userAvatar.path);
+    //print('this is newly selected user avatar' + userAvatar.path);
 
     // userAvatar != null
     //     ? Provider.of<FirebaseOperations>(context, listen: false)

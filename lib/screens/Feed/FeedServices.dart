@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:thesocial/constants/Constantcolors.dart';
 import 'package:thesocial/screens/Feed/FeedUtils.dart';
@@ -87,6 +86,16 @@ class FeedServices extends ChangeNotifier {
 
   Future editPostSheet(BuildContext context) {
     TextEditingController _captionController = TextEditingController();
+    GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    String captionValidator(value) {
+      if (value.isEmpty) {
+        return 'please fill the caption';
+      } else if (value.toString().length < 3) {
+        return 'make sure your caption is long enough';
+      }
+      return null;
+    }
+
     return showModalBottomSheet(
         isScrollControlled: true,
         context: context,
@@ -158,64 +167,71 @@ class FeedServices extends ChangeNotifier {
                       Container(
                         height: 120,
                         width: 330,
-                        child: TextField(
-                          maxLines: 5,
-                          textCapitalization: TextCapitalization.words,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(100)
-                          ],
-                          controller: _captionController,
-                          decoration: InputDecoration(
-                            hintText: 'Add Caption',
-                            hintStyle: TextStyle(
+                        child: Form(
+                          key: formKey,
+                          child: TextFormField(
+                            validator: captionValidator,
+                            maxLines: 5,
+                            textCapitalization: TextCapitalization.words,
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(100)
+                            ],
+                            controller: _captionController,
+                            decoration: InputDecoration(
+                              hintText: 'Add Caption',
+                              hintStyle: TextStyle(
                                 color: constantColors.whiteColor,
                                 fontSize: 14.0,
-                                fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: TextStyle(color: constantColors.whiteColor),
                           ),
-                          style: TextStyle(color: constantColors.whiteColor),
                         ),
                       ),
                     ],
                   ),
                 ),
                 MaterialButton(
-                  color: constantColors.blueColor,
-                  child: Text(
-                    'Share',
-                    style: TextStyle(
-                      color: constantColors.whiteColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
+                    color: constantColors.blueColor,
+                    child: Text(
+                      'Share',
+                      style: TextStyle(
+                        color: constantColors.whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                      ),
                     ),
-                  ),
-                  onPressed: () {
-                    Provider.of<FirebaseOperations>(context, listen: false)
-                        .addPostData(_captionController.text, {
-                      'caption': _captionController.text,
-                      'username': Provider.of<FirebaseOperations>(context,
-                              listen: false)
-                          .getUserName,
-                      'useremail': Provider.of<FirebaseOperations>(context,
-                              listen: false)
-                          .getUserEmail,
-                      'useruid':
-                          Provider.of<Authentication>(context, listen: false)
-                              .getUserUid,
-                      'time': Timestamp.now(),
-                      'userimage': Provider.of<FirebaseOperations>(context,
-                              listen: false)
-                          .getUserImage,
-                      'postimage':
-                          Provider.of<FeedUtils>(context, listen: false)
-                              .getPostImageUrl,
-                    }).whenComplete(() {
-                      print('post data added');
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                    });
-                  },
-                )
+                    onPressed: () {
+                      if (!formKey.currentState.validate()) {
+                        return;
+                      }
+                      Provider.of<FirebaseOperations>(context, listen: false)
+                          .addPostData(_captionController.text, {
+                        'caption': _captionController.text,
+                        'username': Provider.of<FirebaseOperations>(context,
+                                listen: false)
+                            .getUserName,
+                        'useremail': Provider.of<FirebaseOperations>(context,
+                                listen: false)
+                            .getUserEmail,
+                        'useruid':
+                            Provider.of<Authentication>(context, listen: false)
+                                .getUserUid,
+                        'time': Timestamp.now(),
+                        'userimage': Provider.of<FirebaseOperations>(context,
+                                listen: false)
+                            .getUserImage,
+                        'postimage':
+                            Provider.of<FeedUtils>(context, listen: false)
+                                .getPostImageUrl,
+                      }).whenComplete(() {
+                        print('post data added');
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      });
+                    })
               ],
             ),
           );

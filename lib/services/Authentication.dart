@@ -5,30 +5,65 @@ import 'package:google_sign_in/google_sign_in.dart';
 class Authentication extends ChangeNotifier {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  String errorMsg;
   String userUid;
   String get getUserUid => userUid;
 
   Future logIntoAccount(String email, String password) async {
+    errorMsg = null;
     try {
       UserCredential userCredential = await firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
 
       User user = userCredential.user;
       userUid = user.uid;
-      print(userUid);
       notifyListeners();
+      return true;
     } on FirebaseAuthException catch (e) {
       print(e.code);
+      switch (e.code) {
+        case 'user-not-found':
+          errorMsg = 'this email is not registered';
+          break;
+        case 'wrong-password':
+          errorMsg = 'password is wrong';
+          break;
+        default:
+          errorMsg = 'some unknown error occured';
+      }
+      return false;
+    } catch (e) {
+      errorMsg = 'some unknown error occured';
+      return false;
     }
   }
 
   Future registerAccount(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth
-        .createUserWithEmailAndPassword(email: email, password: password);
-    User user = userCredential.user;
-    userUid = user.uid;
-    print('user registered =>' + userUid);
-    notifyListeners();
+    errorMsg = null;
+    try {
+      UserCredential userCredential = await firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      User user = userCredential.user;
+      userUid = user.uid;
+      print('user registered =>' + userUid);
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+      switch (e.code) {
+        case 'invalid-email':
+          errorMsg = 'please enter a valid email';
+          break;
+        case 'email-already-in-use':
+          errorMsg = 'this email is already in use';
+          break;
+        default:
+          errorMsg = 'some unknown error occured';
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future logoutViaEmail() {

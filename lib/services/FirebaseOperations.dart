@@ -36,10 +36,14 @@ class FirebaseOperations extends ChangeNotifier {
   }
 
   Future addUserToCollection(BuildContext context, dynamic data) async {
-    return await FirebaseFirestore.instance
-        .collection('users')
-        .doc(Provider.of<Authentication>(context, listen: false).getUserUid)
-        .set(data);
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(Provider.of<Authentication>(context, listen: false).getUserUid)
+          .set(data);
+    } catch (e) {
+      print(e.code);
+    }
   }
 
   Future fetchUserProfileInfo(BuildContext context) async {
