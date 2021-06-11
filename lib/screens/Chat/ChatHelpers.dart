@@ -169,10 +169,13 @@ class ChatHelpers extends ChangeNotifier {
                             constantColors.blueColor.withAlpha(100),
                         child: Icon(FontAwesomeIcons.comment,
                             color: constantColors.whiteColor),
-                        onPressed: () {
+                        onPressed: () async {
                           if (_chatController.text.length > 0) {
                             print(_chatController.text);
-                            Provider.of<FirebaseOperations>(context,
+                            FocusScopeNode currentFocus =
+                                FocusScope.of(context);
+                            currentFocus.unfocus();
+                            await Provider.of<FirebaseOperations>(context,
                                     listen: false)
                                 .addChat(
                                     context,
@@ -181,12 +184,7 @@ class ChatHelpers extends ChangeNotifier {
                                     userUid,
                                     myUid,
                                     _chatController.text,
-                                    chatDocUid)
-                                .whenComplete(() {
-                              FocusScopeNode currentFocus =
-                                  FocusScope.of(context);
-                              currentFocus.unfocus();
-                            });
+                                    chatDocUid);
                           }
                         })
                   ],

@@ -122,21 +122,20 @@ class LandingServices extends ChangeNotifier {
                           FontAwesomeIcons.check,
                           color: constantColors.blueColor,
                         ),
-                        onPressed: () {
-                          Provider.of<Authentication>(context, listen: false)
+                        onPressed: () async {
+                          await Provider.of<Authentication>(context,
+                                  listen: false)
                               .logIntoAccount(documentSnapshot.get('useremail'),
-                                  documentSnapshot.get('userpassword'))
-                              .whenComplete(() {
-                            Provider.of<FirebaseOperations>(context,
-                                    listen: false)
-                                .fetchUserProfileInfo(context);
-                            Navigator.pushReplacement(
-                                context,
-                                PageTransition(
-                                  child: HomePage(),
-                                  type: PageTransitionType.leftToRight,
-                                ));
-                          });
+                                  documentSnapshot.get('userpassword'));
+                          await Provider.of<FirebaseOperations>(context,
+                                  listen: false)
+                              .fetchUserProfileInfo(context);
+                          Navigator.pushReplacement(
+                              context,
+                              PageTransition(
+                                child: HomePage(),
+                                type: PageTransitionType.leftToRight,
+                              ));
                         },
                       ),
                       IconButton(
@@ -303,6 +302,7 @@ class LandingServices extends ChangeNotifier {
                 child: Form(
                   key: _passwordKey,
                   child: TextFormField(
+                    obscureText: true,
                     validator: _passwordValidator,
                     controller: _passwordController,
                     decoration: InputDecoration(
@@ -353,7 +353,7 @@ class LandingServices extends ChangeNotifier {
                             context,
                             listen: false,
                           ).addUserToCollection(context, {
-                            'userid': Provider.of<Authentication>(
+                            'useruid': Provider.of<Authentication>(
                               context,
                               listen: false,
                             ).getUserUid,
@@ -365,6 +365,13 @@ class LandingServices extends ChangeNotifier {
                               listen: false,
                             ).getUserAvatarUrl
                           });
+                          await Provider.of<Authentication>(context,
+                                  listen: false)
+                              .logIntoAccount(_emailController.text,
+                                  _passwordController.text);
+                          await Provider.of<FirebaseOperations>(context,
+                                  listen: false)
+                              .fetchUserProfileInfo(context);
                           Navigator.pushReplacement(
                               context,
                               PageTransition(
@@ -490,7 +497,10 @@ class LandingServices extends ChangeNotifier {
                         _emailController.text,
                         _passwordController.text,
                       )
-                          .then((result) {
+                          .then((result) async {
+                        await Provider.of<FirebaseOperations>(context,
+                                listen: false)
+                            .fetchUserProfileInfo(context);
                         print(result);
                         if (!result) {
                           showWarning(

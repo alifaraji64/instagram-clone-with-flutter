@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:thesocial/screens/LandingPage/LandingUtils.dart';
+import 'package:thesocial/services/FirebaseOperations.dart';
 
 class Authentication extends ChangeNotifier {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -66,8 +69,10 @@ class Authentication extends ChangeNotifier {
     }
   }
 
-  Future logoutViaEmail() {
-    return firebaseAuth.signOut();
+  Future logoutViaEmail(BuildContext context) async {
+    await firebaseAuth.signOut();
+    Provider.of<FirebaseOperations>(context, listen: false).userimage = null;
+    Provider.of<LandingUtils>(context, listen: false).userAvatarUrl = null;
   }
 
   Future signInWithGoogle() async {

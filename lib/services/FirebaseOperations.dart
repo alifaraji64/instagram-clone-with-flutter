@@ -17,7 +17,7 @@ class FirebaseOperations extends ChangeNotifier {
   List<String> get getListOfUserIds => listOfUserIds;
 
   Future uploadUserAvatar(BuildContext context) async {
-    final provider = Provider.of<LandingUtils>(context, listen: false);
+    var provider = Provider.of<LandingUtils>(context, listen: false);
     UploadTask imageUploadTask;
     Reference imageReference = FirebaseStorage.instance
         .ref()
@@ -32,6 +32,7 @@ class FirebaseOperations extends ChangeNotifier {
     imageReference.getDownloadURL().then((url) {
       print('user profile avatar URL' + url.toString());
       provider.userAvatarUrl = url.toString();
+      this.userimage = url.toString();
     });
   }
 
@@ -113,13 +114,6 @@ class FirebaseOperations extends ChangeNotifier {
   //postId is the caption of post
   Future deletePost(postId) async {
     await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
-  }
-
-  Future editPostCaption(String oldCaption, String newCaption) async {
-    await FirebaseFirestore.instance
-        .collection('posts')
-        .doc(oldCaption)
-        .update({'caption': newCaption});
   }
 
   Future followUser(

@@ -24,6 +24,7 @@ class GlobalWidgets extends ChangeNotifier {
             );
           } else {
             //user is not followd
+            String snapShotType = snapshot.runtimeType.toString();
             if (!snapshot_v2.hasData || !snapshot_v2.data.exists)
               return MaterialButton(
                 color: constantColors.blueColor,
@@ -43,22 +44,25 @@ class GlobalWidgets extends ChangeNotifier {
                         .getUserUid,
                     {
                       //snapshot we are getting from the bottomsheets have the type of DocumentSnapshot but the one we are getting from the header is AsyncSnapshot so based on the type we are getting the data differently. in DocumentSnapshot we don't have a data property so we have to use snapshot.get('')
-                      'username': snapshot.runtimeType.toString() ==
-                              '_JsonQueryDocumentSnapshot'
-                          ? snapshot.get('username')
-                          : snapshot.data.get('username'),
-                      'useremail': snapshot.runtimeType.toString() ==
-                              '_JsonQueryDocumentSnapshot'
-                          ? snapshot.get('useremail')
-                          : snapshot.data.get('useremail'),
-                      'userimage': snapshot.runtimeType.toString() ==
-                              '_JsonQueryDocumentSnapshot'
-                          ? snapshot.get('userimage')
-                          : snapshot.data.get('userimage'),
-                      'userid': snapshot.runtimeType.toString() ==
-                              '_JsonQueryDocumentSnapshot'
-                          ? snapshot.get('userid')
-                          : snapshot.data.get('userid'),
+                      'username':
+                          snapShotType == '_JsonQueryDocumentSnapshot' ||
+                                  snapShotType == 'QueryDocumentSnapshot'
+                              ? snapshot.get('username')
+                              : snapshot.data.get('username'),
+                      'useremail':
+                          snapShotType == '_JsonQueryDocumentSnapshot' ||
+                                  snapShotType == 'QueryDocumentSnapshot'
+                              ? snapshot.get('useremail')
+                              : snapshot.data.get('useremail'),
+                      'userimage':
+                          snapShotType == '_JsonQueryDocumentSnapshot' ||
+                                  snapShotType == 'QueryDocumentSnapshot'
+                              ? snapshot.get('userimage')
+                              : snapshot.data.get('userimage'),
+                      'useruid': snapShotType == '_JsonQueryDocumentSnapshot' ||
+                              snapShotType == 'QueryDocumentSnapshot'
+                          ? snapshot.get('useruid')
+                          : snapshot.data.get('useruid'),
                       'time': Timestamp.now()
                     },
                     Provider.of<Authentication>(context, listen: false)
@@ -74,7 +78,7 @@ class GlobalWidgets extends ChangeNotifier {
                       'userimage': Provider.of<FirebaseOperations>(context,
                               listen: false)
                           .getUserImage,
-                      'userid':
+                      'useruid':
                           Provider.of<Authentication>(context, listen: false)
                               .getUserUid,
                       'time': Timestamp.now()
@@ -86,7 +90,7 @@ class GlobalWidgets extends ChangeNotifier {
                         backgroundColor: constantColors.yellowColor,
                         duration: Duration(seconds: 1),
                         content: Text(
-                          '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been followed',
+                          '${snapShotType == "_JsonQueryDocumentSnapshot" || snapShotType == "QueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been followed',
                           style: TextStyle(
                             color: constantColors.darkColor,
                             fontSize: 16,
@@ -102,7 +106,7 @@ class GlobalWidgets extends ChangeNotifier {
             //user is followed
             else
               return MaterialButton(
-                child: Text('Unfollow',
+                child: Text('unfollow',
                     style: TextStyle(
                       color: constantColors.whiteColor,
                       fontWeight: FontWeight.bold,
@@ -120,7 +124,7 @@ class GlobalWidgets extends ChangeNotifier {
                         backgroundColor: constantColors.redColor,
                         duration: Duration(seconds: 1),
                         content: Text(
-                          '${snapshot.runtimeType.toString() == "_JsonQueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been Unfollowed',
+                          '${snapShotType == "_JsonQueryDocumentSnapshot" || snapShotType == "QueryDocumentSnapshot" ? snapshot.get("username") : snapshot.data.get("username")} has been Unfollowed',
                           style: TextStyle(
                             color: constantColors.whiteColor,
                             fontSize: 16,
@@ -174,7 +178,7 @@ class GlobalWidgets extends ChangeNotifier {
                     trailing: Container(
                         width: 100,
                         //not showing the follow button for the user itself
-                        child: documentSnapshot.get('userid') !=
+                        child: documentSnapshot.get('useruid') !=
                                 Provider.of<Authentication>(context,
                                         listen: false)
                                     .getUserUid
@@ -182,7 +186,7 @@ class GlobalWidgets extends ChangeNotifier {
                                 .conditionalFollowButtons(
                                 context,
                                 documentSnapshot,
-                                documentSnapshot.get('userid'),
+                                documentSnapshot.get('useruid'),
                               )
                             : Container(
                                 width: 0,

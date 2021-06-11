@@ -13,7 +13,7 @@ class PostOptions extends ChangeNotifier {
           return AlertDialog(
             backgroundColor: constantColors.darkColor,
             title: Text(
-              'what do you wanna do?',
+              'you want to delete this post?',
               style: TextStyle(
                 color: constantColors.whiteColor,
                 fontWeight: FontWeight.bold,
@@ -26,7 +26,7 @@ class PostOptions extends ChangeNotifier {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   MaterialButton(
-                      child: Text('Edit the Caption',
+                      child: Text('No',
                           style: TextStyle(
                             color: constantColors.whiteColor,
                             fontSize: 14,
@@ -34,11 +34,10 @@ class PostOptions extends ChangeNotifier {
                           )),
                       onPressed: () {
                         Navigator.pop(context);
-                        showEditCaptionDialog(context, caption);
                       }),
                   MaterialButton(
                       color: constantColors.redColor,
-                      child: Text('Delete the Post',
+                      child: Text('Yes',
                           style: TextStyle(
                             color: constantColors.whiteColor,
                             fontSize: 14,
@@ -55,71 +54,6 @@ class PostOptions extends ChangeNotifier {
                       }),
                 ],
               )
-            ],
-          );
-        });
-  }
-
-  showEditCaptionDialog(BuildContext context, String oldCaption) {
-    TextEditingController _captionController = TextEditingController();
-    _captionController.text = oldCaption;
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: constantColors.darkColor,
-            title: Text(
-              'Edit the caption',
-              style: TextStyle(
-                color: constantColors.whiteColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            actions: [
-              Container(
-                  width: 380,
-                  child: Column(children: [
-                    Container(
-                      width: 220,
-                      child: TextField(
-                        controller: _captionController,
-                        style: TextStyle(color: constantColors.whiteColor),
-                        decoration: InputDecoration(
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: constantColors.blueColor,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    MaterialButton(
-                        color: constantColors.blueColor,
-                        child: Text(
-                          'Submit',
-                          style: TextStyle(
-                            color: constantColors.whiteColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () {
-                          if (_captionController.text == oldCaption) {
-                            print('it is not changed');
-                          } else {
-                            print('it is changed apply the changes to db');
-                            Provider.of<FirebaseOperations>(context,
-                                    listen: false)
-                                .editPostCaption(
-                                    oldCaption, _captionController.text)
-                                .whenComplete(() {
-                              print('caption updated');
-                              Navigator.pop(context);
-                            });
-                          }
-                        }),
-                  ]))
             ],
           );
         });

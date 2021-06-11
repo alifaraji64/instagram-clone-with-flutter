@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   ConstantColors constantColors = ConstantColors();
   final PageController homepageController = PageController();
-  int pageIndex = 0;
+  int pageIndex = 2;
 
   @override
   Widget build(BuildContext context) {

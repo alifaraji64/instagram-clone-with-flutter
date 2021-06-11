@@ -243,16 +243,14 @@ class ProfileHelpers extends ChangeNotifier {
                         fontWeight: FontWeight.bold,
                       )),
                   onPressed: () {
-                    Provider.of<Authentication>(context, listen: false)
-                        .logoutViaEmail()
-                        .whenComplete(() {
-                      Navigator.pushReplacement(
+                    Navigator.pushAndRemoveUntil(
                         context,
                         PageTransition(
                             child: LandingPage(),
-                            type: PageTransitionType.leftToRight),
-                      );
-                    });
+                            type: PageTransitionType.rightToLeft),
+                        (route) => false);
+                    Provider.of<Authentication>(context, listen: false)
+                        .logoutViaEmail(context);
                   }),
             ],
           );

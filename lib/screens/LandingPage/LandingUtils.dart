@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
-import 'package:thesocial/services/FirebaseOperations.dart';
 
 class LandingUtils extends ChangeNotifier {
   final picker = ImagePicker();

@@ -15,6 +15,7 @@ import 'package:thesocial/services/Authentication.dart';
 import 'package:thesocial/services/FirebaseOperations.dart';
 import 'package:thesocial/utils/TimeAgo.dart';
 import 'package:thesocial/utils/PostOptions.dart';
+import 'package:thesocial/widgets/GlobalWidgets.dart';
 
 class FeedHelpers extends ChangeNotifier {
   ConstantColors constantColors = ConstantColors();
@@ -57,8 +58,8 @@ class FeedHelpers extends ChangeNotifier {
                     Provider.of<TimeAgo>(context, listen: false)
                         .showTimeGo(documentSnapshot.get('time'));
                     return Container(
-                      margin: EdgeInsets.only(bottom: 20),
-                      height: MediaQuery.of(context).size.height * 0.65,
+                      margin: EdgeInsets.only(bottom: 40),
+                      //  height: MediaQuery.of(context).size.height * 0.69,
                       width: MediaQuery.of(context).size.width,
                       child: Column(
                         children: [
@@ -93,12 +94,19 @@ class FeedHelpers extends ChangeNotifier {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      documentSnapshot.get('caption'),
-                                      style: TextStyle(
-                                          color: constantColors.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          3 /
+                                          4,
+                                      child: Text(
+                                        documentSnapshot.get('caption'),
+                                        overflow: TextOverflow.visible,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                            color: constantColors.whiteColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
                                     ),
                                     Row(
                                       mainAxisAlignment:
@@ -175,12 +183,14 @@ class FeedHelpers extends ChangeNotifier {
                             height: MediaQuery.of(context).size.height * 0.46,
                             width: MediaQuery.of(context).size.width,
                             child: FittedBox(
+                              fit: BoxFit.fill,
                               child: Image.network(
                                 documentSnapshot.get('postimage'),
                                 scale: 2,
                               ),
                             ),
                           ),
+                          SizedBox(height: 5),
                           //row of button for like,comment,reward
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -485,16 +495,24 @@ class FeedHelpers extends ChangeNotifier {
                                             radius: 15,
                                           ),
                                           onTap: () {
-                                            Navigator.pushReplacement(
-                                                context,
-                                                PageTransition(
-                                                  child: AltProfile(
-                                                    userUid: documentSnapshot
-                                                        .get('useruid'),
-                                                  ),
-                                                  type: PageTransitionType
-                                                      .leftToRight,
-                                                ));
+                                            if (documentSnapshot
+                                                    .get('useruid') !=
+                                                Provider.of<Authentication>(
+                                                        context,
+                                                        listen: false)
+                                                    .getUserUid) {
+                                              Navigator.pushReplacement(
+                                                  context,
+                                                  PageTransition(
+                                                    child: AltProfile(
+                                                      userUid: documentSnapshot
+                                                          .get('useruid'),
+                                                    ),
+                                                    type: PageTransitionType
+                                                        .leftToRight,
+                                                  ));
+                                            }
+                                            return;
                                           },
                                         ),
                                         SizedBox(width: 10),
@@ -692,15 +710,25 @@ class FeedHelpers extends ChangeNotifier {
                                             radius: 20,
                                           ),
                                           onTap: () {
-                                            Navigator.pushReplacement(
-                                                context,
-                                                PageTransition(
-                                                  child: AltProfile(
-                                                      userUid: documentSnapshot
-                                                          .get('useruid')),
-                                                  type: PageTransitionType
-                                                      .leftToRight,
-                                                ));
+                                            if (documentSnapshot
+                                                    .get('useruid') !=
+                                                Provider.of<Authentication>(
+                                                        context,
+                                                        listen: false)
+                                                    .getUserUid) {
+                                              Navigator.push(
+                                                  context,
+                                                  PageTransition(
+                                                    child: AltProfile(
+                                                        userUid:
+                                                            documentSnapshot
+                                                                .get(
+                                                                    'useruid')),
+                                                    type: PageTransitionType
+                                                        .leftToRight,
+                                                  ));
+                                            }
+                                            return;
                                           },
                                         ),
                                         SizedBox(width: 10),
@@ -732,7 +760,14 @@ class FeedHelpers extends ChangeNotifier {
                                                   context,
                                                   listen: false,
                                                 ).getUserUid
-                                            ? followButton(constantColors)
+                                            ? Provider.of<GlobalWidgets>(
+                                                    context,
+                                                    listen: false)
+                                                .conditionalFollowButtons(
+                                                context,
+                                                documentSnapshot,
+                                                documentSnapshot.get('useruid'),
+                                              )
                                             : Container(
                                                 width: 0,
                                                 height: 0,

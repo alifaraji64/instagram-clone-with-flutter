@@ -31,10 +31,16 @@ class HomePageHelpers extends ChangeNotifier {
         CustomNavigationBarItem(icon: Icon(Icons.message_rounded)),
         CustomNavigationBarItem(
             icon: CircleAvatar(
-          backgroundImage: NetworkImage(Provider.of<LandingUtils>(
-            context,
-            listen: false,
-          ).getUserAvatarUrl),
+          backgroundImage: Provider.of<FirebaseOperations>(
+                    context,
+                    listen: false,
+                  ).getUserImage !=
+                  null
+              ? NetworkImage(Provider.of<FirebaseOperations>(
+                  context,
+                  listen: false,
+                ).getUserImage)
+              : null,
         )),
       ],
     );
